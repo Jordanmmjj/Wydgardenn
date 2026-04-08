@@ -20,7 +20,6 @@
         <nav class="menu">
           <ul class="menu-lista">
 
-            <!-- ✅ SECCIÓN DE USUARIO MEJORADA (Con clases CSS) -->
             {% if current_user.is_authenticated %}
             <li class="menu-user-item">
               <div class="menu-user-info">
@@ -30,19 +29,19 @@
             </li>
 
             {% if current_user.rol.nombre == 'ADMIN' %}
-            <li >
+            <li>
               <a href="/dashboard">Dashboard</a>
             </li>
             {% endif %}
-            
-            <li >
+
+            <li>
               <a href="/logout">Cerrar sesión</a>
             </li>
             {% else %}
-            <li >
+            <li>
               <a href="/login">Iniciar Sesión</a>
             </li>
-            <li >
+            <li>
               <a href="/registro">Registro</a>
             </li>
             {% endif %}

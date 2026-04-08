@@ -52,7 +52,7 @@ class Pedido(db.Model):
     __tablename__ = 'pedidos'
     id_pedido = db.Column('id_pedido', db.Integer, primary_key=True)
     id_usuario = db.Column('id_usuario', db.Integer, db.ForeignKey('usuarios.id_usuario'))
-    fecha_pedido = db.Column('fecha_pedido', db.DateTime, default=datetime.utcnow)
+    fecha_pedido = db.Column('fecha_pedido', db.DateTime, default=datetime.now)
     total = db.Column('total', db.Float)
     estado = db.Column('estado', db.String(50), default='PENDIENTE')
     metodo_pago = db.Column('metodo_pago', db.String(100))
@@ -74,19 +74,22 @@ class DetallePedido(db.Model):
 class Pqrs(db.Model):
     __tablename__ = 'pqrs'
     id_pqrs = db.Column('id_pqrs', db.Integer, primary_key=True)
+    id_usuario = db.Column('id_usuario', db.Integer, db.ForeignKey('usuarios.id_usuario'))
     nombre = db.Column('nombre', db.String(255))
     correo = db.Column('correo', db.String(255))
     tipo = db.Column('tipo', db.String(100))
     mensaje = db.Column('mensaje', db.Text)
-    fecha = db.Column('fecha', db.DateTime, default=datetime.utcnow)
+    fecha = db.Column('fecha', db.DateTime, default=datetime.now)
     respuesta = db.Column('respuesta', db.Text)
     estado = db.Column('estado', db.String(50), default='PENDIENTE')
+
+    usuario = db.relationship('Usuario', backref=db.backref('pqrs', lazy=True))
 
 class Venta(db.Model):
     __tablename__ = 'ventas'
     id_venta = db.Column('id_venta', db.Integer, primary_key=True)
     id_usuario = db.Column('id_usuario', db.Integer, db.ForeignKey('usuarios.id_usuario'))
-    fecha_venta = db.Column('fecha_venta', db.DateTime, default=datetime.utcnow)
+    fecha_venta = db.Column('fecha_venta', db.DateTime, default=datetime.now)
     total = db.Column('total', db.Float)
     id_pedido = db.Column('id_pedido', db.Integer, db.ForeignKey('pedidos.id_pedido'))
 

@@ -6,7 +6,6 @@ app = create_app()
 
 def migrar_datos():
     with app.app_context():
-        # 0. Limpiar todo lo nuevo para empezar de cero
         db.session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
         tablas_nuevas = ['usuarios', 'productos', 'categorias', 'roles', 'pqrs', 'ventas', 'pedidos', 'detalles_pedido', 'carrito']
         for t in tablas_nuevas:
@@ -15,12 +14,9 @@ def migrar_datos():
         print("Tablas nuevas limpias.")
 
         try:
-            # 1. MIGRAR ROLES
             db.session.execute(text("INSERT IGNORE INTO roles (id_rol, nombre) VALUES (1, 'ADMIN'), (2, 'USUARIO'), (3, 'EMPLEADO');"))
             db.session.commit()
 
-            # 2. MIGRAR CATEGORIAS (Desde 'categoria' a 'categorias')
-            # Intentamos leer de 'categoria' si existe
             try:
                 categorias_viejas = db.session.execute(text("SELECT id_categoria, nombre FROM categoria;")).fetchall()
                 for c in categorias_viejas:
@@ -28,11 +24,9 @@ def migrar_datos():
                 db.session.commit()
                 print(f"Migradas {len(categorias_viejas)} categorías.")
             except:
-                # Si falló porque ya no existe la vieja, creamos por defecto
                 db.session.add(Categoria(id=1, nombre='General'))
                 db.session.commit()
 
-            # 3. MIGRAR PRODUCTOS (Desde 'producto' a 'productos')
             try:
                 prod_viejos = db.session.execute(text("SELECT * FROM producto;")).fetchall()
                 cols_p = [c[0] for c in db.session.execute(text("SHOW COLUMNS FROM producto;")).fetchall()]
@@ -52,7 +46,6 @@ def migrar_datos():
             except Exception as e:
                 print("Error productos:", e)
 
-            # 4. MIGRAR USUARIOS (Desde 'usuario' a 'usuarios')
             try:
                 usuarios_viejos = db.session.execute(text("SELECT * FROM usuario;")).fetchall()
                 cols_u = [c[0] for c in db.session.execute(text("SHOW COLUMNS FROM usuario;")).fetchall()]
@@ -75,7 +68,6 @@ def migrar_datos():
             except Exception as e:
                 print("Error usuarios:", e)
 
-            # 5. BORRE FINAL DE TABLAS VIEJAS
             tablas_viejas = ['usuario', 'producto', 'rol', 'categoria', 'pedido', 'detalle_pedido', 'inventario', 'entrada_inventario', 'salida_inventario', 'reportes']
             for t in tablas_viejas:
                 try: db.session.execute(text(f"DROP TABLE IF EXISTS {t};")); print(f"Borrada '{t}'.")

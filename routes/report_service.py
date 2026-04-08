@@ -16,7 +16,7 @@ class ReportePDF(FPDF):
         
         self.set_font('helvetica', 'B', 20)
         self.set_text_color(40, 114, 51) # Color verde WyGarden
-        self.cell(0, 10, 'WYDGARDEN - REPORTE DE VENTAS', border=0, center=True, align='C')
+        self.cell(0, 10, 'WYDGARDEN - REPORTE DE VENTAS', border=0, ln=1, align='C')
         self.ln(10)
         self.set_font('helvetica', 'I', 10)
         self.set_text_color(100)
@@ -56,7 +56,11 @@ def generar_pdf_ventas(ventas, titulo_periodo="GENERAL"):
     
     for v in ventas:
         # Formatear fecha
-        f_str = v.fecha_venta.strftime('%d/%m/%Y %H:%M') if v.fecha_venta else "S/F"
+        try:
+            f_str = v.fecha_venta.strftime('%d/%m/%Y %H:%M') if v.fecha_venta else "S/F"
+        except:
+            f_str = "S/F"
+            
         cliente_nombre = f"{v.usuario.nombres} {v.usuario.apellidos}" if v.usuario else "Desconocido"
         
         pdf.cell(col_widths[0], 10, f_str, 1)
@@ -73,4 +77,10 @@ def generar_pdf_ventas(ventas, titulo_periodo="GENERAL"):
     pdf.cell(sum(col_widths[:-1]), 12, "TOTAL RECAUDADO EN EL PERÍODO:", 1, 0, 'R', fill=True)
     pdf.cell(col_widths[-1], 12, f"${total_acumulado:,.0f}", 1, 1, 'R', fill=True)
     
-    return pdf.output()
+    # Manejar salida para fpdf o fpdf2
+    try:
+        # En fpdf2 output() sin parámetros devuelve bytes
+        return pdf.output()
+    except:
+        # En fpdf clásico necesitamos dest='S'
+        return pdf.output(dest='S')

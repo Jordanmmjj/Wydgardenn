@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from flask_login import current_user, login_required
 from models import db, Producto, Categoria, Carrito, Pedido, DetallePedido, Venta
 from datetime import datetime
+from flask_mail import Message
 
 shop_bp = Blueprint('shop', __name__)
 
@@ -99,4 +100,39 @@ def checkout():
     db.session.add(nueva_venta)
     
     db.session.commit()
+
+    # --- 4. ENVIAR CORREO DE NOTIFICACIÓN (ADMIN) ---
+    try:
+        # Importamos mail desde app para evitar circular dependency
+        from app import mail
+        fecha_actual = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        
+        num_nequi = request.form.get('numeroNequi', 'No proporcionado')
+        detalle_pago = f"Nequi: {num_nequi}" if metodo_pago == 'NEQUI' else "Efectivo"
+        
+        cuerpo = f"""
+        ¡Nueva venta realizada en WYDGARDEN!
+        -----------------------------------
+        ID Pedido: {nuevo_pedido.id_pedido}
+        Cliente: {current_user.nombres} {current_user.apellidos}
+        Email: {current_user.email}
+        
+        Fecha y Hora: {fecha_actual}
+        Método de Pago: {metodo_pago}
+        Detalle Pago: {detalle_pago}
+        
+        VALOR PAGADO: ${total_pedido:,.0f}
+        -----------------------------------
+        ¡Revisa el dashboard para empacar el pedido!
+        """
+        
+        from flask import current_app
+        msg = Message(subject=f"🌵 Notificación de Venta #{nuevo_pedido.id_pedido}",
+                      body=cuerpo,
+                      recipients=[current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')]) # Se lo envía al admin
+        mail.send(msg)
+        print("Correo de venta enviado correctamente.")
+    except Exception as e:
+        print(f"Correo no enviado: {e}")
+
     return render_template('compra_exitosa.html', total=total_pedido, id_pedido=nuevo_pedido.id_pedido)

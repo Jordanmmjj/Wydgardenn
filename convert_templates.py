@@ -7,7 +7,6 @@ def convert_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # We use function replacements to completely avoid python backslash bugs in replacement strings
     def repl_href_static(m):
         return f'href="{{{{ url_for(\'static\', filename=\'{m.group(1)}/{m.group(2)}\') }}}}"'
     content = re.sub(r'th:href="@{/(css|js|img|images|storage)/(.*?)}"', repl_href_static, content)
@@ -28,14 +27,9 @@ def convert_file(filepath):
         return f'action="/{m.group(1)}"'
     content = re.sub(r'th:action="@{/(.*?)}"', repl_action, content)
     
-    # Remove 'th:text' structure leaving just inner Jinja like <tag>{{ var }}</tag>
-    # Very safe regex to just match the th:text safely
     content = re.sub(r'th:text="\${(.*?)}"', r'>{{ \1 }}<', content)
-    # This was truncating tags dangerously, let's skip the tag cleaner and just let Jinja output it
-    # No, we must clean it:
     content = content.replace('><{{', '>{{').replace('}}<<', '}}</')
 
-    # Remove th:classappend and others safely
     content = re.sub(r'th:object="\${.*?}"', '', content)
     content = re.sub(r'th:field="\*{.*?}"', '', content)
     content = re.sub(r'sec:authorize=".*?"', '', content)

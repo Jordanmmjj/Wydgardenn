@@ -6,7 +6,6 @@ if ($mysqli->connect_errno) {
     exit();
 }
 
-// 1. Obtener pass de Juan
 $res = $mysqli->query("SELECT contraseña FROM usuarios WHERE correo = 'juan.perez@test.com'");
 if (!$res) {
     echo "Error buscando a Juan: " . $mysqli->error;
@@ -21,7 +20,6 @@ $pass = $row['contraseña'];
 
 echo "Pass de Juan obtenido (len " . strlen($pass) . ").\n";
 
-// 2. Actualizar Jordan
 $stmt = $mysqli->prepare("UPDATE usuarios SET contraseña = ?, id_rol = 1 WHERE correo = 'jordan@admin.com'");
 $stmt->bind_param("s", $pass);
 if ($stmt->execute()) {

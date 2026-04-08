@@ -8,6 +8,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from models import db, Usuario, Rol
+from flask_mail import Message
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -18,21 +19,17 @@ def validar_password_fuerte(password):
     return None
 
 def enviar_correo_generico(destinatario, asunto, cuerpo):
-    remitente = "jordan.cely06@gmail.com"
-    password_app = "bbsptvhuqbqvcnwn"
-    
-    msg = MIMEMultipart()
-    msg['From'] = remitente
-    msg['To'] = destinatario
-    msg['Subject'] = asunto
-    msg.attach(MIMEText(cuerpo, 'plain'))
-    
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(remitente, password_app)
-        server.sendmail(remitente, destinatario, msg.as_string())
-        server.quit()
+        from app import mail
+        from flask import current_app
+        print(f"DEBUG: Intentando enviar correo a {destinatario}")
+        print(f"DEBUG: Servidor SMTP: {current_app.config.get('MAIL_SERVER')}")
+        print(f"DEBUG: Usuario SMTP: {current_app.config.get('MAIL_USERNAME')}")
+        msg = Message(subject=asunto,
+                      recipients=[destinatario],
+                      body=cuerpo)
+        mail.send(msg)
+        print(f"DEBUG: Correo enviado con éxito a {destinatario}")
         return True
     except Exception as e:
         print(f"Error enviando correo a {destinatario}:", e)
@@ -43,7 +40,7 @@ def enviar_correo_bienvenida(destinatario_usuario, nombre_usuario):
     cuerpo = f"Hola {nombre_usuario},\n\nHas creado tu cuenta exitosamente. ¡Bienvenido a nuestra tienda!"
     enviar_correo_generico(destinatario_usuario, asunto, cuerpo)
     # Notificar admin
-    admin_email = "jordan.cely06@gmail.com"
+    admin_email = current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')
     enviar_correo_generico(admin_email, "🌱 NUEVO REGISTRO", f"Nuevo usuario: {nombre_usuario} ({destinatario_usuario})")
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -95,14 +92,25 @@ def registro():
 @auth_bp.route('/recuperar-password', methods=['GET', 'POST'])
 def recuperar_password():
     if request.method == 'POST':
-        email = request.form.get('email')
-        user = Usuario.query.filter_by(email=email).first()
+        email_input = request.form.get('email', '').strip()
+        # Búsqueda insensible a mayúsculas
+        from sqlalchemy import func
+        user = Usuario.query.filter(func.lower(Usuario.email) == email_input.lower()).first()
+        
         if user:
+            print(f"DEBUG: Enviando link de recuperación a {user.email}")
             s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-            token = s.dumps(email, salt='password-reset-salt')
+            token = s.dumps(user.email, salt='password-reset-salt')
             link = url_for('auth.restablecer_password', token=token, _external=True)
-            cuerpo = f"Hola,\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n{link}\n\nEste enlace expirará en 30 minutos."
-            enviar_correo_generico(email, "Restablecimiento de Contraseña - WYDGARDEN", cuerpo)
+            cuerpo = f"Hola {user.nombres},\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n{link}\n\nEste enlace expirará en 30 minutos."
+            exito = enviar_correo_generico(user.email, "Restablecimiento de Contraseña - WYDGARDEN", cuerpo)
+            if exito:
+                print("DEBUG: Correo de recuperación enviado con éxito.")
+            else:
+                print("DEBUG: FALLO el envío del correo de recuperación.")
+        else:
+            print(f"DEBUG: No se encontró usuario con el correo: {email_input}")
+            
         flash('Si el correo existe, se ha enviado un enlace de recuperación.', 'info')
         return redirect(url_for('auth.login'))
     return render_template('recuperar-password.html')

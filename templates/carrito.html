@@ -113,11 +113,18 @@
             <div style="margin-bottom: 20px; text-align: right;">
               <h4 style="margin-bottom: 10px;">Método de Pago:</h4>
               <label style="margin-right: 15px; cursor: pointer;">
-                <input type="radio" name="metodoPago" value="EFECTIVO" checked> Efectivo
+                <input type="radio" name="metodoPago" value="EFECTIVO" checked onclick="document.getElementById('nequi-container').style.display='none'"> Efectivo
               </label>
               <label style="cursor: pointer;">
-                <input type="radio" name="metodoPago" value="NEQUI"> Nequi
+                <input type="radio" name="metodoPago" value="NEQUI" onclick="document.getElementById('nequi-container').style.display='block'"> Nequi
               </label>
+            </div>
+
+            <!-- Campo Nequi oculto por defecto -->
+            <div id="nequi-container" style="display:none; margin-bottom: 20px; text-align: right;">
+              <label>Número de Nequi:</label>
+              <input type="text" name="numeroNequi" placeholder="320..." style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; width: 250px;">
+              <p style="font-size: 0.8rem; color: #888;">El valor a pagar será informado en el siguiente paso.</p>
             </div>
 
             <button type="submit" class="btn btn-success" style="font-size: 1.1rem; padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, Response
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, Response, send_file
+import io
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from models import db, Venta, DetallePedido, Pedido, Producto, Categoria
@@ -41,12 +42,17 @@ def reporte_hoy():
     
     today = date.today()
     ventas = Venta.query.filter(db.func.date(Venta.fecha_venta) == today).all()
-    pdf_bytes = generar_pdf_ventas(ventas, f"DEL DIA {today.strftime('%d/%m/%Y')}")
+    pdf_output = generar_pdf_ventas(ventas, f"DEL DIA {today.strftime('%d/%m/%Y')}")
     
-    return Response(
-        pdf_bytes,
+    # Asegurar que sea binario para evitar errores de descarga
+    if isinstance(pdf_output, str):
+        pdf_output = pdf_output.encode('latin-1')
+
+    return send_file(
+        io.BytesIO(pdf_output),
         mimetype="application/pdf",
-        headers={"Content-disposition": f"attachment; filename=reporte_hoy_{today}.pdf"}
+        as_attachment=True,
+        download_name=f"reporte_hoy_{today}.pdf"
     )
 
 @admin_bp.route('/reportes/semana')
@@ -57,12 +63,53 @@ def reporte_semanal():
     
     hace_siete_dias = date.today() - timedelta(days=7)
     ventas = Venta.query.filter(Venta.fecha_venta >= hace_siete_dias).all()
-    pdf_bytes = generar_pdf_ventas(ventas, "ULTIMOS 7 DIAS")
+    pdf_output = generar_pdf_ventas(ventas, "ULTIMOS 7 DIAS")
     
-    return Response(
-        pdf_bytes,
+    if isinstance(pdf_output, str):
+        pdf_output = pdf_output.encode('latin-1')
+
+    return send_file(
+        io.BytesIO(pdf_output),
         mimetype="application/pdf",
-        headers={"Content-disposition": "attachment; filename=reporte_semanal.pdf"}
+        as_attachment=True,
+        download_name="reporte_semanal.pdf"
+    )
+
+@admin_bp.route('/reportes/personalizado')
+@login_required
+def reporte_personalizado():
+    if current_user.rol.nombre not in ['ADMIN', 'EMPLEADO']:
+        return "No autorizado", 403
+        
+    inicio_str = request.args.get('inicio')
+    fin_str = request.args.get('fin')
+    estado = request.args.get('estado', 'TODOS')
+    
+    if not inicio_str or not fin_str:
+        return "Fechas requeridas", 400
+        
+    # Convertir strings a objetos date
+    inicio = datetime.strptime(inicio_str, '%Y-%m-%d')
+    # Ajustar fin para que incluya todo el día (hasta las 23:59:59)
+    fin = datetime.strptime(fin_str, '%Y-%m-%d') + timedelta(days=1)
+    
+    query = Venta.query.filter(Venta.fecha_venta >= inicio, Venta.fecha_venta < fin)
+    
+    if estado != 'TODOS':
+        # Unimos con Pedido para filtrar por estado
+        query = query.join(Pedido).filter(Pedido.estado == estado)
+        
+    ventas = query.all()
+    pdf_output = generar_pdf_ventas(ventas, f"DEL {inicio_str} AL {fin_str} ({estado})")
+    
+    if isinstance(pdf_output, str):
+        pdf_output = pdf_output.encode('latin-1')
+
+    return send_file(
+        io.BytesIO(pdf_output),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"reporte_personalizado_{inicio_str}_{fin_str}.pdf"
     )
 
 @admin_bp.route('/admin/productos')
