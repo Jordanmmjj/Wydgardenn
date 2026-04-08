@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Usuarios - WYDGARDEN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+    <style>
+        .crud-container {
+            padding: 20px;
+            margin-left: 250px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .table-responsive {
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>WYDGARDEN</h2>
+            <ul>
+                <li><a href="/home">Inicio</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/admin/productos">Productos</a></li>
+                <li><a href="/admin/usuarios" class="active">Usuarios</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="crud-container">
+                <h2>Gestión de Usuarios</h2>
+                <button id="btnNuevoUsuario" class="btn btn-success">Nuevo Usuario</button>
+
+                <div class="table-responsive">
+                    <table class="table table-striped" id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Usuarios cargados dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Formulario Usuario -->
+    <div id="modalUsuario" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle">Nuevo Usuario</h3>
+            <form id="formUsuario">
+                <input type="hidden" id="usuarioId">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="correo">Correo:</label>
+                    <input type="email" id="correo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="rol">Rol:</label>
+                    <select id="rol" class="form-control">
+                        <!-- Roles cargados dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contrasena">Contraseña:</label>
+                    <input type="password" id="contrasena" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/usuarios';
+        const API_ROLES = '/api/roles';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarUsuarios();
+            cargarRoles();
+
+            const modal = document.getElementById('modalUsuario');
+            const btnNuevo = document.getElementById('btnNuevoUsuario');
+            const span = document.getElementsByClassName('close')[0];
+            const form = document.getElementById('formUsuario');
+
+            btnNuevo.onclick = () => {
+                document.getElementById('usuarioId').value = '';
+                form.reset();
+                document.getElementById('modalTitle').innerText = 'Nuevo Usuario';
+                modal.style.display = "block";
+            }
+
+            span.onclick = () => {
+                modal.style.display = "none";
+            }
+
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('usuarioId').value;
+                const usuario = {
+                    nombre: document.getElementById('nombre').value,
+                    apellido: document.getElementById('apellido').value,
+                    telefono: document.getElementById('telefono').value,
+                    correo: document.getElementById('correo').value,
+                    contrasena: document.getElementById('contrasena').value,
+                    rol: { id_rol: parseInt(document.getElementById('rol').value) }
+                };
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `${API_URL}/${id}` : API_URL;
+
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(usuario)
+                    });
+
+                    if (response.ok) {
+                        modal.style.display = "none";
+                        cargarUsuarios();
+                    } else {
+                        alert('Error al guardar el usuario');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            };
+        });
+
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch(API_URL);
+                const usuarios = await response.json();
+                const tbody = document.querySelector('#tablaUsuarios tbody');
+                tbody.innerHTML = '';
+
+                usuarios.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${u.id_usuario}</td>
+                    <td>${u.nombre}</td>
+                    <td>${u.apellido}</td>
+                    <td>${u.correo}</td>
+                    <td>${u.rol ? u.rol.nombre : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="editarUsuario(${u.id_usuario})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${u.id_usuario})">Eliminar</button>
+                    </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
+        async function cargarRoles() {
+            try {
+                const response = await fetch(API_ROLES);
+                const roles = await response.json();
+                const select = document.getElementById('rol');
+                select.innerHTML = '';
+                roles.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.id_rol; // Assuming id_rol
+                    option.textContent = r.nombre;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando roles:', error);
+            }
+        }
+
+        window.editarUsuario = async (id) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const u = await response.json();
+
+                document.getElementById('usuarioId').value = u.id_usuario;
+                document.getElementById('nombre').value = u.nombre;
+                document.getElementById('apellido').value = u.apellido;
+                document.getElementById('telefono').value = u.telefono;
+                document.getElementById('correo').value = u.correo;
+                document.getElementById('contrasena').value = u.contrasena;
+                if (u.rol) {
+                    document.getElementById('rol').value = u.rol.id_rol;
+                }
+
+                document.getElementById('modalTitle').innerText = 'Editar Usuario';
+                document.getElementById('modalUsuario').style.display = "block";
+            } catch (error) {
+                console.error('Error cargando usuario:', error);
+            }
+        }
+
+        window.eliminarUsuario = async (id) => {
+            if (confirm('¿Estás seguro de eliminar este usuario?')) {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        cargarUsuarios();
+                    } else {
+                        alert('Error al eliminar');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

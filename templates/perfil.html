@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Perfil | WYDGARDEN</title>
+  <!-- CSS Global -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- CSS Perfil -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+</head>
+
+<body>
+
+  {% include 'componentes/navbar.html' %}
+
+  <div class="dashboard-container">
+    {% include 'componentes/sidebar.html' %}
+
+    <main class="dashboard-main">
+      <div class="card" style="max-width: 600px; margin: 0 auto; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="profile-header" style="text-align: center; margin-bottom: 30px;">
+          <div class="profile-avatar" style="width: 80px; height: 80px; background: #28a745; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 15px;">
+            <span>{{ current_user.nombres[0].upper() if current_user.nombres else 'U' }}</span>
+          </div>
+          <h2 style="margin: 0; font-size: 1.5rem;">{{ current_user.nombres }} {{ current_user.apellidos }}</h2>
+          <span class="rol-badge" style="background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-top: 5px; display: inline-block;">
+            {{ current_user.rol.nombre }}
+          </span>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="margin-bottom: 15px; padding: 10px; border-radius: 5px; background: rgba({{ '0,255,0' if category=='success' else '255,0,0' }},0.1); color: #fff;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/perfil/actualizar">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px;">Nombre</label>
+              <input type="text" name="nombres" value="{{ current_user.nombres }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px;">Apellido</label>
+              <input type="text" name="apellidos" value="{{ current_user.apellidos }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px;">Correo Electrónico</label>
+            <input type="email" value="{{ current_user.email }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #222; background: #111; color: #888;" readonly>
+            <small style="color: #666; font-size: 0.8rem;">El correo electrónico no se puede cambiar.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px;">Teléfono</label>
+            <input type="tel" name="telefono" value="{{ current_user.telefono if current_user.telefono else '' }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" placeholder="Ingresa tu teléfono">
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;">
+          <h3 style="margin-bottom: 20px; font-size: 1.1rem; color: #ddd;"><i class="fas fa-lock"></i> Seguridad</h3>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px;">Nueva Contraseña (Opcional)</label>
+            <input type="password" name="password" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" placeholder="••••••••" autocomplete="new-password">
+            <small style="color: #666;">Déjalo en blanco para mantener la actual.</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; background: #28a745; border: none; color: #fff; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+            <i class="fas fa-save" style="margin-right: 5px;"></i> Guardar Cambios
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-content container">
+      <div class="link">
+        <ul>
+          <li>© WYDGARDEN</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

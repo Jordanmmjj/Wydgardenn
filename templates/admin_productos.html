@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Productos - WYDGARDEN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .crud-container {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .table-responsive {
+            margin-top: 20px;
+        }
+
+        /* Simple table styles */
+        table { width: 100%; border-collapse: collapse; background: #233142; color: #fff; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #34495e; }
+        th { background: #34495e; color: #bdc3c7; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #2c3e50;
+            color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid #34495e;
+            width: 50%;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn { padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; text-decoration: none; font-size: 0.9rem; }
+        .btn-success { background: #2ecc71; color: #fff; }
+        .btn-primary { background: #3498db; color: #fff; }
+        .btn-danger { background: #e74c3c; color: #fff; }
+        .btn-info { background: #17a2b8; color: #fff; }
+
+        input, select, textarea { 
+            width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #34495e; 
+            background: #1c2833; color: #fff; margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        {% include 'componentes/sidebar.html' %}
+
+        <main class="dashboard-main">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2><i class="fas fa-boxes"></i> Gestión de Productos</h2>
+                    <button id="btnNuevoProducto" class="btn btn-success"><i class="fas fa-plus"></i> Nuevo Producto</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="tablaProductos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Categoría</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Productos cargados dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Formulario Producto -->
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle" style="margin-top: 0;">Nuevo Producto</h3>
+            <form id="formProducto">
+                <input type="hidden" id="productoId">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" rows="3"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="precio">Precio:</label>
+                        <input type="number" id="precio" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock:</label>
+                        <input type="number" id="stock" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría:</label>
+                    <select id="categoria">
+                        <!-- Categorias cargadas dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imagen">Nombre Imagen (ej. producto.png):</label>
+                    <input type="text" id="imagen" placeholder="Debe existir en la carpeta storage/">
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="width: 120px;">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/productos';
+        const API_CATEGORIAS = '/api/categorias';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarProductos();
+            cargarCategorias();
+
+            const modal = document.getElementById('modalProducto');
+            const btnNuevo = document.getElementById('btnNuevoProducto');
+            const span = document.getElementsByClassName('close')[0];
+            const form = document.getElementById('formProducto');
+
+            btnNuevo.onclick = () => {
+                document.getElementById('productoId').value = '';
+                form.reset();
+                document.getElementById('modalTitle').innerText = 'Nuevo Producto';
+                modal.style.display = "block";
+            }
+
+            span.onclick = () => { modal.style.display = "none"; }
+            window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('productoId').value;
+                const producto = {
+                    nombre: document.getElementById('nombre').value,
+                    descripcion: document.getElementById('descripcion').value,
+                    precio: parseFloat(document.getElementById('precio').value),
+                    stock: parseInt(document.getElementById('stock').value),
+                    imagen: document.getElementById('imagen').value,
+                    categoria: { id_categoria: parseInt(document.getElementById('categoria').value) }
+                };
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `${API_URL}/${id}` : API_URL;
+
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(producto)
+                    });
+
+                    if (response.ok) {
+                        modal.style.display = "none";
+                        cargarProductos();
+                    } else {
+                        alert('Error al guardar el producto');
+                    }
+                } catch (error) { console.error('Error:', error); }
+            };
+        });
+
+        async function cargarProductos() {
+            try {
+                const response = await fetch(API_URL);
+                const productos = await response.json();
+                const tbody = document.querySelector('#tablaProductos tbody');
+                tbody.innerHTML = '';
+
+                productos.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.id_producto}</td>
+                        <td><img src="/storage/${p.imagen || 'cremita.png'}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
+                        <td>${p.nombre}</td>
+                        <td>$${p.precio.toLocaleString()}</td>
+                        <td>${p.stock}</td>
+                        <td>${p.categoria ? p.categoria.nombre : 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="editarProducto(${p.id_producto})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${p.id_producto})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) { console.error('Error cargando productos:', error); }
+        }
+
+        async function cargarCategorias() {
+            try {
+                const response = await fetch(API_CATEGORIAS);
+                const categorias = await response.json();
+                const select = document.getElementById('categoria');
+                select.innerHTML = '';
+                categorias.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id_categoria;
+                    option.textContent = c.nombre;
+                    select.appendChild(option);
+                });
+            } catch (error) { console.error('Error cargando categorias:', error); }
+        }
+
+        window.editarProducto = async (id) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const p = await response.json();
+
+                document.getElementById('productoId').value = p.id_producto;
+                document.getElementById('nombre').value = p.nombre;
+                document.getElementById('descripcion').value = p.descripcion;
+                document.getElementById('precio').value = p.precio;
+                document.getElementById('stock').value = p.stock;
+                document.getElementById('imagen').value = p.imagen;
+                if (p.categoria) document.getElementById('categoria').value = p.categoria.id_categoria;
+
+                document.getElementById('modalTitle').innerText = 'Editar Producto';
+                document.getElementById('modalProducto').style.display = "block";
+            } catch (error) { console.error('Error cargando producto:', error); }
+        }
+
+        window.eliminarProducto = async (id) => {
+            if (confirm('¿Estás seguro de eliminar este producto?')) {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    if (response.ok) cargarProductos();
+                } catch (error) { console.error('Error:', error); }
+            }
+        }
+    </script>
+</body>
+
+</html>

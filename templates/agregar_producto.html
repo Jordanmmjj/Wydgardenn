@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar Producto</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="formulario-contenedor">
+    <div class="formulario-producto">
+      <h2>Agregar Nuevo Producto</h2>
+
+      <form action="/admin/productos/guardar" method="POST" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="formulario-campo">
+          <label for="Nombre">Nombre:</label>
+          <input type="text" name="Nombre" id="Nombre" required>
+        </div>
+
+        <div class="formulario-campo">
+          <label for="Descripcion">Descripción:</label>
+          <textarea name="Descripcion" id="Descripcion" required></textarea>
+        </div>
+
+        <div class="formulario-campo">
+          <label for="Precio">Precio:</label>
+          <input type="number" name="Precio" id="Precio" step="0.01" required>
+        </div>
+
+        <div class="formulario-campo">
+          <label for="id_categoria">Categoría:</label>
+          <select name="id_categoria" id="id_categoria" required>
+            <option value="">Seleccione una categoría</option>
+            <option th:each="categoria : ${categorias}" th:value="${categoria.id_categoria}"
+              >{{ categoria.nombre }}<>Categoría</option>
+          </select>
+        </div>
+
+        <div class="formulario-campo">
+          <label for="imagen">Imagen:</label>
+          <input type="file" name="imagen" id="imagen" accept="image/*">
+        </div>
+
+        <div class="formulario-botones">
+          <button type="submit" class="formulario-btn-guardar">
+            <i class="fas fa-save"></i> Guardar Producto
+          </button>
+          <a href="/catalogo" class="formulario-btn-cancelar">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

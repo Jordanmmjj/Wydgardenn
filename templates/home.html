@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Inicio - WYDGARDEN</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="hero-area">
+    <header class="main-header">
+      <div class="contenedor">
+        <nav class="barra-navegacion">
+          <a href="/home" class="inicio">
+            <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo" />
+          </a>
+        </nav>
+
+        <nav class="menu">
+          <ul class="menu-lista">
+
+            <!-- ✅ SECCIÓN DE USUARIO MEJORADA (Con clases CSS) -->
+            {% if current_user.is_authenticated %}
+            <li class="menu-user-item">
+              <div class="menu-user-info">
+                <a href="/perfil" class="menu-user-name">{{ current_user.nombres }}</a>
+                <span class="menu-user-role">{{ current_user.rol.nombre }}</span>
+              </div>
+            </li>
+
+            {% if current_user.rol.nombre == 'ADMIN' %}
+            <li >
+              <a href="/dashboard">Dashboard</a>
+            </li>
+            {% endif %}
+            
+            <li >
+              <a href="/logout">Cerrar sesión</a>
+            </li>
+            {% else %}
+            <li >
+              <a href="/login">Iniciar Sesión</a>
+            </li>
+            <li >
+              <a href="/registro">Registro</a>
+            </li>
+            {% endif %}
+
+            <li class="ruta">
+              <a href="#">Nosotros</a>
+              <ul class="submenu">
+                <li><a href="#conocenos">Conócenos</a></li>
+              </ul>
+            </li>
+
+            <li class="ruta">
+              <a href="/catalogo">Productos</a>
+              <ul class="submenu">
+                <li><a href="/catalogo">Catálogo</a></li>
+                <li><a href="/carrito">Carrito de compras</a></li>
+              </ul>
+            </li>
+
+            <li class="ruta">
+              <a href="#">Contáctanos</a>
+              <ul class="submenu">
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="#mapa">Ubicación</a></li>
+                <li><a href="/pqrs">PQRS</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section class="intro">
+      <h2>Bienvenido a WYDGARDEN</h2>
+      <p>Encuentra bienestar y relajación con nuestros productos naturales.</p>
+    </section>
+
+    <div class="slider">
+      <div class="slider-inner">
+        <div class="slider-item">
+          <img src="{{ url_for('static', filename='img/aceite.png') }}" alt="Imagen 1">
+          <h1>Aceites</h1>
+        </div>
+        <div class="slider-item">
+          <img src="{{ url_for('static', filename='img/pomada.png') }}" alt="Imagen 2">
+          <h1>Pomadas</h1>
+        </div>
+        <div class="slider-item">
+          <img src="{{ url_for('static', filename='img/mascarilla.png') }}" alt="Imagen 3">
+          <h1>Mascarillas</h1>
+        </div>
+        <div class="slider-item">
+          <img src="{{ url_for('static', filename='img/incienso.png') }}" alt="Imagen 4">
+          <h1>Inciensos</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="catalogo">
+      <div class="texto">
+        <h1>Conoce <span>sobre nosotros</span></h1>
+      </div>
+    </div>
+
+    <div id="conocenos" class="cuadros">
+      <div class="cuadro">
+        <h2>¿Qué hacemos?</h2>
+        <p>En WYDGARDEN te ayudamos a encontrar equilibrio y bienestar con productos naturales como aceites, inciensos y
+          cremas, además de servicios que promueven la relajación y la renovación personal.</p>
+      </div>
+
+      <div class="cuadro">
+        <h2>¿Qué ofrecemos?</h2>
+        <p>Ofrecemos productos y terapias naturales que buscan mejorar tu salud física y mental. En WYDGARDEN, tu
+          bienestar y tranquilidad son nuestra prioridad.</p>
+      </div>
+
+      <div class="cuadro">
+        <h2>Tu sitio de paz</h2>
+        <p>WYDGARDEN combina la naturaleza y el cuidado personal para ofrecerte una experiencia de relajación profunda
+          con productos de alta calidad y servicios pensados para tu paz interior.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content container">
+      <div class="link">
+        <h3 id="contacto">Contáctanos</h3>
+        <ul>
+          <li><a href="tel:+3204910123">320 491 0123</a></li>
+          <li><a href="tel:+3013190047">301 319 0047</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <h3>Correo de contacto</h3>
+        <ul>
+          <li><a href="mailto:Wydgarden@gmail.com">Wydgarden@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <ul>
+          <li>© WYDGARDEN</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="mapa" id="mapa">
+      <h2>¿Dónde nos ubicamos?</h2>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.3920314246875!2d-74.10776779999999!3d4.701765099999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9b4eb9dbc98d%3A0xb953371c8dec6115!2sColegio%20Nydia%20Quintero%20de%20Turbay!5e0!3m2!1ses!2sco!4v1694268876382!5m2!1ses!2sco"
+        width="100%" height="450" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </section>
+  </footer>
+</body>
+
+</html>

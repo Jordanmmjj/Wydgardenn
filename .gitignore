@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Base de datos local
+*.sqlite3
+
+# Archivos de Sistema
+.DS_Store
+Thumbs.db
+
+# Imágenes cargadas (Opcional si quieres llevarlas a GitHub o no)
+# storage/

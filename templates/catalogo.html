@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos | WYDGARDEN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogo.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .stock-disponible { color: #2ecc71; font-weight: bold; }
+        .stock-agotado { color: #e74c3c; font-weight: bold; }
+        .btn-agotado { background-color: #95a5a6 !important; cursor: not-allowed; opacity: 0.7; }
+    </style>
+</head>
+
+<body>
+
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        {% include 'componentes/sidebar.html' %}
+
+        <main class="dashboard-main">
+            <div class="catalogo-contenedor">
+
+                <!-- Barra de Filtros -->
+                <form method="GET" action="/catalogo" class="filtros-barra">
+                    <select name="categoria" class="filtro-input">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if request.args.get('categoria') == cat.id|string %}selected{% endif %}>
+                            {{ cat.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="number" name="precio_min" placeholder="Mín $" value="{{ request.args.get('precio_min', '') }}" class="filtro-input">
+                    <input type="number" name="precio_max" placeholder="Máx $" value="{{ request.args.get('precio_max', '') }}" class="filtro-input">
+                    <input type="text" name="buscar" placeholder="Buscar..." value="{{ request.args.get('buscar', '') }}" class="filtro-input">
+
+                    <button type="submit" class="filtro-btn">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </form>
+
+                <!-- Grid de Productos -->
+                <div class="catalogo-grid">
+                    {% for producto in productos %}
+                    <div class="catalogo-card">
+                        {% if producto.imagenUrl %}
+                        <img src="/storage/{{ producto.imagenUrl }}" alt="{{ producto.nombre }}" class="catalogo-card-img">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/cremita.png') }}" alt="Sin imagen" class="catalogo-card-img">
+                        {% endif %}
+
+                        <h3 class="catalogo-card-nombre">{{ producto.nombre }}</h3>
+                        <p class="catalogo-card-descripcion">{{ producto.descripcion }}</p>
+                        <p class="catalogo-card-precio">${{ "{:,.0f}".format(producto.precio) }}</p>
+                        
+                        <p class="catalogo-stock" style="font-size: 0.9rem; margin-bottom: 10px;">
+                            Stock: 
+                            <span class="{{ 'stock-disponible' if producto.stock > 0 else 'stock-agotado' }}">
+                                {{ producto.stock }}
+                            </span>
+                        </p>
+
+                        {% if producto.stock and producto.stock > 0 %}
+                        <button class="catalogo-card-btn" 
+                                data-id="{{ producto.id }}" 
+                                onclick="agregarAlCarrito(this.getAttribute('data-id'))">
+                            <i class="fas fa-shopping-cart"></i> Agregar
+                        </button>
+                        {% else %}
+                        <button class="catalogo-card-btn btn-agotado" disabled>
+                            <i class="fas fa-times"></i> Agotado
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #888;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
+                        No se encontraron productos con estos filtros.
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function agregarAlCarrito(id) {
+            fetch(`/carrito/agregar/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                if (response.ok) {
+                    alert('¡Producto agregado al carrito! 🌱');
+                } else {
+                    alert('Error al agregar. Verifica tu sesión.');
+                }
+            })
+            .catch(err => console.error('Error:', err));
+        }
+    </script>
+</body>
+
+</html>

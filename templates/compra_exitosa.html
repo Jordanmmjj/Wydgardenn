@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>¡Compra Exitosa! | WYDGARDEN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        {% include 'componentes/sidebar.html' %}
+
+        <main class="dashboard-main" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+            <div class="card" style="text-align: center; max-width: 600px; padding: 50px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                <i class="fas fa-check-circle" style="font-size: 5rem; color: #2ecc71; margin-bottom: 25px;"></i>
+                <h1 style="color: white; margin-bottom: 15px;">¡Gracias por tu compra!</h1>
+                
+                <div style="background: rgba(46, 204, 113, 0.1); border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                    <p style="color: #2ecc71; font-weight: bold; margin: 0;">Pedido #{{ id_pedido }}</p>
+                    <p style="color: #fff; font-size: 1.2rem; margin-top: 5px;">Total: ${{ "{:,.0f}".format(total) }}</p>
+                </div>
+
+                <p style="color: #ccc; font-size: 1rem; margin-bottom: 30px;">
+                    Tu pedido ha sido procesado exitosamente. 
+                    Recuerda que si elegiste <b>Efectivo</b> el pago se realiza al recibir el producto.
+                </p>
+                
+                <a href="/catalogo" class="btn" style="background: #28a745; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
+                    Volver al Catálogo
+                </a>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

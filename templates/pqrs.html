@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>PQRS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pqrs.css') }}">
+</head>
+
+<body>
+
+  {% include 'componentes/navbar.html' %}
+
+  <div class="dashboard">
+
+    <main class="pqrs-section">
+      <h2>Formulario PQRS</h2>
+      <form id="pqrsForm" class="pqrs-form" action="{{ url_for('pqrs.pqrs') }}" method="POST">
+        <label for="nombre">Nombre completo:</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="correo">Correo electrónico:</label>
+        <input type="email" id="correo" name="correo" required>
+
+        <label for="tipo">Tipo de solicitud:</label>
+        <select id="tipo" name="tipo" required>
+          <option value="">Selecciona una opción</option>
+          <option value="Peticion">Petición</option>
+          <option value="Queja">Queja</option>
+          <option value="Reclamo">Reclamo</option>
+          <option value="Sugerencia">Sugerencia</option>
+        </select>
+
+        <label for="mensaje">Mensaje:</label>
+        <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+
+        <button type="submit">Enviar</button>
+        <a href="/404">¿No se completa tu solicitud?</a>
+      </form>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-content container">
+      <div class="link">
+        <h3 id="contacto">Contáctanos</h3>
+        <ul>
+          <li><a href="#">320 491 0123</a></li>
+          <li><a href="#">301 319 0047</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <h3>Correo de contacto</h3>
+        <ul>
+          <li><a href="#">Wydgarden@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <ul>
+          <li>© WYDGARDEN</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="mapa" id="mapa">
+      <h2>¿Dónde nos ubicamos?</h2>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=  !1m18!1m12!1m3!1d3976.3920314246875!2d-74.10776779999999!3d4.701765099999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9b4eb9dbc98d%3A0xb953371c8dec6115!2sColegio%20Nydia%20Quintero%20de%20Turbay!5e0!3m2!1ses!2sco!4v1694268876382!5m2!1ses!2sco"
+        width="100%" height="450" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </section>
+  </footer>
+</body>
+
+</html>

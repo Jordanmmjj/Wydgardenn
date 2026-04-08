@@ -1,0 +1,158 @@
+/* --- Lista de Productos --- */
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header-actions h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.table-productos {
+    width: 100%;
+    border-collapse: collapse;
+    color: #e0e0e0;
+    margin-top: 10px;
+}
+
+.table-productos th,
+.table-productos td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table-productos th {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table-productos tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.btn-crear {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-crear:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-editar {
+    color: #f39c12;
+    margin-right: 15px;
+    font-size: 1.1rem;
+    transition: 0.2s;
+}
+
+.btn-editar:hover {
+    color: #d68910;
+    transform: scale(1.1);
+}
+
+.btn-eliminar {
+    color: #e74c3c;
+    font-size: 1.1rem;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+    color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* --- Formulario de Productos --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    outline: none;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.form-control1 {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgb(139, 185, 152);
+    outline: none;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: #1a4fff;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(26, 79, 255, 0.2);
+}
+
+.form-control1:focus {
+    border-color: #1a4fff;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(26, 79, 255, 0.2);
+}
+
+.btn-guardar {
+    background: #1a4fff;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1rem;
+}
+
+.btn-guardar:hover {
+    background: #0036ff;
+    transform: translateY(-2px);
+}
+
+.btn-cancelar {
+    color: #aaa;
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-cancelar:hover {
+    color: white;
+}

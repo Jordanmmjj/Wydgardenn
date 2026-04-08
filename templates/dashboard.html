@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+
+  <!-- Estilos Globales -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  {% include 'componentes/navbar.html' %}
+
+  <div class="dashboard-container">
+
+    <!-- Sidebar -->
+    {% include 'componentes/sidebar.html' %}
+
+    <!-- Contenido Principal -->
+    <main class="dashboard-main">
+      <div class="reportes">
+        <h3>Reportes</h3>
+        <div class="reportes-buttons">
+          <a href="/reportes/semana" class="btn btn-primary">Descargar Reporte Semanal</a>
+          <a href="/reportes/ahora" class="btn btn-success">Generar Reporte Actual</a>
+        </div>
+
+        <div class="reporte-personalizado" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px;">
+          <h4>Reporte Personalizado</h4>
+          <form action="/reportes/personalizado" method="get" target="_blank"
+            style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+            <div>
+              <label>Desde:</label>
+              <input type="date" name="inicio" required
+                style="padding: 5px; border-radius: 5px; border: 1px solid #ddd;">
+            </div>
+            <div>
+              <label>Hasta:</label>
+              <input type="date" name="fin" required style="padding: 5px; border-radius: 5px; border: 1px solid #ddd;">
+            </div>
+            <div>
+              <label>Estado:</label>
+              <select name="estado" style="padding: 5px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="TODOS">Todos</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="ENPROCESO">En Proceso</option>
+                <option value="ENTREGADO">Entregado</option>
+              </select>
+            </div>
+            <button type="submit" class="btn" style="background-color: #17a2b8; color: white;">Generar PDF</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="card">
+          <h3>Total Ventas Hoy</h3>
+          <p>${{ "{:,.0f}".format(totalVentasHoy) if totalVentasHoy else '0' }}</p>
+          <div class="progress-bar">
+            <div class="progress" style="width: {{ porcentajeVentas if porcentajeVentas else 0 }}%;"></div>
+          </div>
+          <small>
+            {{ "{:,.2f}".format(porcentajeVentas) if porcentajeVentas else '0.00' }}% de la meta diaria
+          </small>
+        </div>
+
+        <div class="card">
+          <h3>Productos Vendidos Hoy</h3>
+          <p>{{ productosVendidos if productosVendidos else 0 }}</p>
+          <div class="progress-bar">
+            <div class="progress"
+              style="width: {{ [productosVendidos, 100]|min if productosVendidos else 0 }}%;">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Meta Diaria</h3>
+          <p>$1.000.000</p>
+          <div class="progress-bar">
+            <div class="progress" style="width: {{ porcentajeVentas if porcentajeVentas else 0 }}%;"></div>
+          </div>
+        </div>
+
+        <div class="card circle-chart">
+          <h3>Aceptación de producto</h3>
+          <div class="circle"
+            style="background: conic-gradient(#042e07 {{ porcentajeVentas if porcentajeVentas else 0 }}%, #ddd 0%);"></div>
+          <p class="circle-text">
+            {{ "{:,.2f}".format(porcentajeVentas) if porcentajeVentas else '0.00' }}%
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content container">
+      <div class="link">
+        <h3 id="contacto">Contáctanos</h3>
+        <ul>
+          <li><a href="tel:+3204910123">320 491 0123</a></li>
+          <li><a href="tel:+3013190047">301 319 0047</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <h3>Correo de contacto</h3>
+        <ul>
+          <li><a href="mailto:Wydgarden@gmail.com">Wydgarden@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="link">
+        <ul>
+          <li>© WYDGARDEN</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="mapa" id="mapa">
+      <h2>¿Dónde nos ubicamos?</h2>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.3920314246875!2d-74.10776779999999!3d4.701765099999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9b4eb9dbc98d%3A0xb953371c8dec6115!2sColegio%20Nydia%20Quintero%20de%20Turbay!5e0!3m2!1ses!2sco!4v1694268876382!5m2!1ses!2sco"
+        width="100%" height="450" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </section>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInputs = document.querySelectorAll('input[type="date"]');
+      dateInputs.forEach(function (input) {
+        input.setAttribute('max', today);
+      });
+    });
+  </script>
+</body>
+
+</html>

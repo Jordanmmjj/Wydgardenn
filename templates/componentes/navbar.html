@@ -1,0 +1,48 @@
+    <!-- Estilos del Navbar cargados dinámicamente -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="/home" class="navbar-logo">
+                <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo WYDGARDEN" style="height: 40px;">
+            </a>
+
+            <ul class="navbar-menu">
+                <li><a href="/home">Inicio</a></li>
+                <li><a href="/catalogo">Catálogo</a></li>
+                <li><a href="/carrito"><i class="fas fa-shopping-cart"></i> Carrito</a></li>
+
+                {% if current_user.is_authenticated %}
+                    {% if current_user.rol.nombre in ['ADMIN', 'EMPLEADO'] %}
+                    <li>
+                        <a href="/dashboard">Dashboard</a>
+                    </li>
+                    {% endif %}
+
+                    <li style="display: flex; align-items: center; gap: 10px;">
+                        <div class="nav-user-info" style="text-align: right; line-height: 1.2;">
+                            <a href="/perfil" class="nav-user-name" style="font-weight: bold; padding:0; margin:0;">
+                                {{ current_user.nombres }}
+                            </a>
+                            <div class="nav-user-role" style="font-size: 0.8rem; color:#aaa; margin:0;">
+                                {{ current_user.rol.nombre }}
+                            </div>
+                        </div>
+                        <div class="nav-avatar" style="background:#fff; color:#000; padding:5px; border-radius:50%;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="/logout">Cerrar Sesión</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="/registro">Registrarse</a>
+                    </li>
+                    <li>
+                        <a href="/login">Iniciar Sesión</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>

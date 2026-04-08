@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Usuario</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+
+<body>
+
+  {% include 'componentes/navbar.html' %}
+
+  <div class="login-container">
+    <div class="left-side"></div>
+    <div class="right-side">
+      <div class="form-container">
+        <h2><i class="fa-solid fa-user-plus"></i> Registro</h2>
+
+        <form method="POST" action="/registro" >
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+          <!-- Nombre -->
+          <label for="nombre">Nombre</label>
+          <input type="text"  id="nombre" name="nombre" placeholder="Tu nombre" required>
+
+          <!-- Apellido -->
+          <label for="apellido">Apellido</label>
+          <input type="text"  id="apellido" name="apellido" placeholder="Tu apellido" required>
+
+          <!-- Correo -->
+          <label for="correo">Correo Electrónico</label>
+          <input type="email"  id="correo" name="correo" placeholder="Tu correo" required>
+
+          <!-- Contraseña -->
+          <label for="contraseña">Contraseña</label>
+          <div class="password-container">
+            <input type="password"  id="contraseña" name="contraseña" placeholder="Tu contraseña" required>
+            <i class="fas fa-eye" id="togglePassword"></i>
+          </div>
+
+          <!-- Botón de envío -->
+          <button type="submit">Registrarse</button>
+
+          <!-- Enlace a login -->
+          <p class="extra-link">
+            ¿Ya tienes cuenta? <a href="/login">Iniciar Sesión</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('contraseña');
+
+    togglePassword.addEventListener('click', function () {
+      // Toggle the type attribute
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      // Toggle the eye icon
+      this.classList.toggle('fa-eye');
+      this.classList.toggle('fa-eye-slash');
+    });
+  </script>
+
+</body>
+
+</html>

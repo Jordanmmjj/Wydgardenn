@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Reporte de Ventas Semanal</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .info { margin-bottom: 20px; }
+    .info div { margin: 5px 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .total { text-align: right; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Reporte de Ventas Semanal</h1>
+    <div class="info">
+      <div>Fecha Inicio: <span >{{ #temporals.format(fechaInicio, 'dd/MM/yyyy') }}<></span></div>
+      <div>Fecha Fin: <span >{{ #temporals.format(fechaFin, 'dd/MM/yyyy') }}<></span></div>
+      <div>Total Ventas: $<span >{{ #numbers.formatDecimal(totalVentas, 0, '.', 0, ',', '.') }}<></span></div>
+      <div>Productos Vendidos: <span >{{ productosVendidos }}<></span></div>
+    </div>
+  </div>
+
+  <div th:if="${ventasPedido != null and !ventasPedido.empty}">
+    <h3>Ventas (Tabla Pedido)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Pedido</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Total</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="venta : ${ventasPedido}">
+          <td >{{ venta.id_pedido }}<>ID</td>
+          <td >{{ venta.usuario != null ? venta.usuario.Nombre : 'N/A' }}<>Cliente</td>
+          <td >{{ #temporals.format(venta.FechaPedido, 'dd/MM/yyyy') }}<>Fecha</td>
+          <td>$<span >{{ #numbers.formatDecimal(venta.Total, 0, '.', 0, ',', '.') }}<></span></td>
+          <td >{{ venta.Estado }}<>Estado</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div th:if="${ventasVenta != null and !ventasVenta.empty}">
+    <h3>Ventas (Tabla Venta)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Venta</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="venta : ${ventasVenta}">
+          <td >{{ venta.id_venta }}<>ID</td>
+          <td >{{ venta.usuario != null ? venta.usuario.Nombre : 'N/A' }}<>Cliente</td>
+          <td >{{ #temporals.format(venta.Fecha_venta, 'dd/MM/yyyy') }}<>Fecha</td>
+          <td>$<span >{{ #numbers.formatDecimal(venta.Total, 0, '.', 0, ',', '.') }}<></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div th:if="${ventasPedido != null and !ventasPedido.empty}">
+    <h3>Detalles de Pedidos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="venta : ${ventasPedido}">
+          <td th:each="detalle : ${venta.detalles}" colspan="4">
+            <table style="width:100%; margin-top:5px;">
+              <tr>
+                <td >{{ detalle.producto != null ? detalle.producto.Nombre : 'N/A' }}<>Producto</td>
+                <td >{{ detalle.cantidad }}<>Cantidad</td>
+                <td>$<span >{{ #numbers.formatDecimal(detalle.precio_unitario, 0, '.', 0, ',', '.') }}<></span></td>
+                <td>$<span >{{ #numbers.formatDecimal(detalle.subtotal, 0, '.', 0, ',', '.') }}<></span></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div th:if="${ventasVenta != null and !ventasVenta.empty}">
+    <h3>Detalles de Ventas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="venta : ${ventasVenta}">
+          <td th:each="detalle : ${venta.detalles}" colspan="4">
+            <table style="width:100%; margin-top:5px;">
+              <tr>
+                <td >{{ detalle.producto != null ? detalle.producto.Nombre : 'N/A' }}<>Producto</td>
+                <td >{{ detalle.cantidad }}<>Cantidad</td>
+                <td>$<span >{{ #numbers.formatDecimal(detalle.precio_unitario, 0, '.', 0, ',', '.') }}<></span></td>
+                <td>$<span >{{ #numbers.formatDecimal(detalle.subtotal, 0, '.', 0, ',', '.') }}<></span></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

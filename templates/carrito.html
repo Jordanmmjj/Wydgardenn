@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Carrito | WYDGARDEN</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/carrito.css') }}">
+</head>
+
+<body>
+  <!-- Navbar -->
+  {% include 'componentes/navbar.html' %}
+
+  <div class="dashboard-container">
+
+    <!-- Sidebar Global -->
+    {% include 'componentes/sidebar.html' %}
+
+    <main class="dashboard-main">
+      <div class="card">
+        <h3><i class="fas fa-shopping-cart"></i> Tu Carrito de Compras</h3>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'danger' if category == 'error' else category }}" style="margin-bottom: 15px; padding: 10px; border-radius: 5px; background: rgba(255,0,0,0.1); color: #fff;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Estado Vacío -->
+        {% if not items_carrito %}
+        <div style="text-align:center; padding: 60px; color: #888;">
+          <i class="fas fa-shopping-basket" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
+          <p style="font-size: 1.1rem;">Tu carrito está vacío actualmente.</p>
+          <a href="/catalogo" class="btn btn-primary" style="margin-top: 25px; display: inline-block;">Ir al Catálogo</a>
+        </div>
+        {% else %}
+
+        <!-- Tabla de items -->
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cant.</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items_carrito %}
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap: 15px;">
+                  <img
+                    src="{{ url_for('storage', filename=item.producto.imagenUrl) if item.producto.imagenUrl else url_for('static', filename='img/cremita.png') }}"
+                    style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #fff;">
+                  <div>
+                    <div style="font-weight: 600;">{{ item.producto.nombre }}</div>
+                    <small style="color: #666;">{{ item.producto.categoria.nombre if item.producto.categoria else '' }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>${{ "{:,.0f}".format(item.producto.precio) }}</td>
+              <td style="white-space: nowrap;">
+                <form action="{{ url_for('shop.actualizar_carrito', carrito_id=item.id_carrito) }}" method="POST" style="display:inline;">
+                   <input type="hidden" name="cantidad" value="{{ item.cantidad - 1 }}">
+                   <button type="submit" style="color: #666; background: #eee; padding: 2px 8px; border:none; border-radius: 4px; cursor:pointer;" {{ 'disabled' if item.cantidad <= 1 else '' }}>
+                      <i class="fas fa-minus" style="font-size:0.8rem"></i>
+                   </button>
+                </form>
+
+                <span style="font-weight:bold; width: 25px; text-align:center; display:inline-block;">{{ item.cantidad }}</span>
+
+                <form action="{{ url_for('shop.actualizar_carrito', carrito_id=item.id_carrito) }}" method="POST" style="display:inline;">
+                   <input type="hidden" name="cantidad" value="{{ item.cantidad + 1 }}">
+                   <button type="submit" style="color: #666; background: #eee; padding: 2px 8px; border:none; border-radius: 4px; cursor:pointer;" {{ 'disabled' if item.cantidad >= item.producto.stock else '' }}>
+                      <i class="fas fa-plus" style="font-size:0.8rem"></i>
+                   </button>
+                </form>
+              </td>
+              <td>${{ "{:,.0f}".format(item.producto.precio * item.cantidad) }}</td>
+              <td style="text-align: right;">
+                <form action="{{ url_for('shop.eliminar_del_carrito', carrito_id=item.id_carrito) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn-eliminar" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 1.2rem;" onclick="return confirm('¿Quitar este producto?');">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+
+            <!-- Fila Total -->
+            <tr class="total-row">
+              <td colspan="3" style="text-align: right; font-weight: bold; padding: 20px;">TOTAL A PAGAR:</td>
+              <td colspan="2" style="font-weight: bold; font-size: 1.3rem; color: #28a745; padding: 20px;">
+                ${{ "{:,.0f}".format(total) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 30px; text-align: right; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <a href="/catalogo" style="color: #aaa; text-decoration: none; margin-right: 20px;">Seguir Comprando</a>
+
+          <form method="POST" action="/carrito/checkout" style="display:inline;">
+            <div style="margin-bottom: 20px; text-align: right;">
+              <h4 style="margin-bottom: 10px;">Método de Pago:</h4>
+              <label style="margin-right: 15px; cursor: pointer;">
+                <input type="radio" name="metodoPago" value="EFECTIVO" checked> Efectivo
+              </label>
+              <label style="cursor: pointer;">
+                <input type="radio" name="metodoPago" value="NEQUI"> Nequi
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-success" style="font-size: 1.1rem; padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              Finalizar Compra <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-content container">
+      <div class="link">
+        <ul>
+          <li>© WYDGARDEN 2024</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>

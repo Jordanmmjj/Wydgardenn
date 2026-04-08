@@ -1,0 +1,241 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #0f172a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0;
+}
+
+.login-container {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 600px;
+    background: rgba(30, 41, 59, 0.7);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: fadeIn 0.9s ease-in-out;
+    margin: auto;
+    width: 90%;
+}
+
+.left-side {
+    flex: 1;
+    background: url('../img/registrooo.jpg') no-repeat center center/cover;
+    position: relative;
+}
+
+.left-side::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.right-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 40px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.8s ease;
+}
+
+.form-container h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 15px;
+    margin-bottom: 18px;
+    transition: background 0.2s;
+}
+
+input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 8px #23d117;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: -12px;
+    margin-bottom: 12px;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.alert-danger {
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.5);
+    color: #ffcccc;
+}
+
+.alert-info {
+    background: rgba(76, 139, 255, 0.2);
+    border: 1px solid rgba(76, 139, 255, 0.5);
+    color: #c0dfff;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2d6a4f;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #1ba959;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(142, 244, 178, 0.4);
+}
+
+.extra-link {
+    text-align: center;
+    margin-top: 15px;
+    color: #d4d4d4;
+}
+
+.extra-link a {
+    color: #76a8ff;
+    text-decoration: none;
+}
+
+.extra-link a:hover {
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media(max-width: 900px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 500px;
+    }
+
+    .left-side {
+        height: 220px;
+    }
+}
+
+/* Contenedor para el campo de contraseña con icono */
+.password-container {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.password-container input {
+    width: 92%;
+    padding-right: 45px;
+    /* Espacio para el icono */
+    margin-bottom: 0;
+}
+
+/* Estilos para el icono del ojo en registro */
+#togglePassword {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    padding: 4px;
+}
+
+#togglePassword:hover {
+    color: #23d117;
+    transform: scale(1.1);
+}
+
+/* Estilos para el icono del ojo en login */
+#togglePasswordLogin {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    padding: 4px;
+}
+
+#togglePasswordLogin:hover {
+    color: #23d117;
+    transform: scale(1.1);
+}

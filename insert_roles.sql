@@ -1,0 +1,4 @@
+-- Crear roles si no existen
+INSERT INTO roles (nombre) VALUES ('ADMIN') ON DUPLICATE KEY UPDATE nombre='ADMIN';
+INSERT INTO roles (nombre) VALUES ('CLIENTE') ON DUPLICATE KEY UPDATE nombre='CLIENTE';
+INSERT INTO roles (nombre) VALUES ('EMPLEADO') ON DUPLICATE KEY UPDATE nombre='EMPLEADO';

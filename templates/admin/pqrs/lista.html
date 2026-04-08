@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de PQRS | ADMIN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .table-pqrs {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #233142;
+            border-radius: 8px;
+            overflow: hidden;
+            color: #ecf0f1;
+        }
+
+        .table-pqrs th,
+        .table-pqrs td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .table-pqrs th {
+            background-color: #34495e;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .table-pqrs tr:hover {
+            background-color: #2c3e50;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-pendiente {
+            background-color: #e67e22;
+            color: white;
+        }
+
+        .badge-respondido {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-responder {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-responder:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        {% include 'componentes/sidebar.html' %}
+
+        <!-- Contenido -->
+        <main class="dashboard-main">
+            <div class="card">
+                <h2><i class="fas fa-envelope-open-text" style="margin-right: 10px;"></i> Gestión de PQRS</h2>
+
+                <table class="table-pqrs">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Usuario</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in listaPqrs %}
+                        <tr>
+                            <td>{{ p.id_pqrs }}</td>
+                            <td>{{ p.fecha.strftime('%d/%m/%Y %H:%M') if p.fecha else 'S/F' }}</td>
+                            <td>{{ p.tipo }}</td>
+                            <td>
+                                <div style="font-weight:bold;">{{ p.nombre }}</div>
+                                <div style="font-size:0.85rem; color:#bbb;">{{ p.correo }}</div>
+                            </td>
+                            <td>
+                                <span class="badge {{ 'badge-pendiente' if p.estado == 'PENDIENTE' else 'badge-respondido' }}">
+                                    {{ p.estado }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if p.estado == 'PENDIENTE' %}
+                                <a href="{{ url_for('pqrs.responder_pqrs', id=p.id_pqrs) }}" class="btn-responder">
+                                    <i class="fas fa-reply"></i> Responder
+                                </a>
+                                {% else %}
+                                <span style="color: #2ecc71;">
+                                    <i class="fas fa-check"></i> Respondido
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #777;">
+                                No hay solicitudes registradas actualmente.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

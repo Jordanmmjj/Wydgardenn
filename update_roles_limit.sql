@@ -1,0 +1,7 @@
+UPDATE usuarios SET id_rol = (SELECT id_rol FROM roles WHERE nombre = 'ADMIN' LIMIT 1) WHERE correo = 'juan.perez@test.com';
+UPDATE usuarios SET id_rol = (SELECT id_rol FROM roles WHERE nombre = 'CLIENTE' LIMIT 1) WHERE correo = 'maria.garcia@test.com';
+
+INSERT INTO usuarios (nombre, apellido, correo, telefono, contraseña, id_rol) 
+SELECT 'Empleado', 'Test', 'empleado@test.com', '0000', u.contraseña, (SELECT id_rol FROM roles WHERE nombre='EMPLEADO' LIMIT 1)
+FROM usuarios u WHERE u.correo = 'juan.perez@test.com'
+AND NOT EXISTS (SELECT 1 FROM usuarios WHERE correo = 'empleado@test.com') LIMIT 1;

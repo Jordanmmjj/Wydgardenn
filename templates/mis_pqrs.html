@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Solicitudes | WYDGARDEN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pqrs-card {
+            background: #233142;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .pqrs-card.respondido {
+            border-left-color: #2ecc71;
+        }
+
+        .pqrs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 10px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-pendiente {
+            background-color: #e67e22;
+            color: white;
+        }
+
+        .badge-respondido {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .pqrs-question {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .pqrs-response {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .response-title {
+            color: #2ecc71;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        {% include 'componentes/sidebar.html' %}
+
+        <!-- Contenido -->
+        <main class="dashboard-main">
+            <div class="card">
+                <h2><i class="fas fa-history" style="margin-right: 10px;"></i> Mis Solicitudes</h2>
+
+                {% for p in listaPqrs %}
+                    <div class="pqrs-card {{ 'respondido' if p.estado == 'RESPONDIDO' else '' }}">
+                        <div class="pqrs-header">
+                            <div>
+                                <span style="font-weight: bold; color: #bdc3c7;">
+                                    {{ p.fecha.strftime('%d/%m/%Y %H:%M') if p.fecha else 'S/F' }}
+                                </span>
+                                <span style="margin-left: 10px; color: #3498db;">{{ p.tipo }}</span>
+                            </div>
+                            <span class="badge {{ 'badge-pendiente' if p.estado == 'PENDIENTE' else 'badge-respondido' }}">
+                                {{ p.estado }}
+                            </span>
+                        </div>
+
+                        <div class="pqrs-question">
+                            <i class="fas fa-quote-left" style="color: #555; margin-right: 5px;"></i>
+                            <span>{{ p.mensaje }}</span>
+                        </div>
+
+                        {% if p.estado == 'RESPONDIDO' %}
+                        <div class="pqrs-response">
+                            <span class="response-title"><i class="fas fa-user-shield"></i> Respuesta de WyGarden:</span>
+                            <p style="margin: 0; color: #ecf0f1;">{{ p.respuesta }}</p>
+                        </div>
+                        {% else %}
+                        <div style="color: #95a5a6; font-size: 0.9rem; margin-top: 10px;">
+                            <i class="fas fa-clock"></i> Esperando respuesta de un asesor...
+                        </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #777;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 10px; display: block;"></i>
+                    No has realizado ninguna solicitud aún.
+                    <br><br>
+                    <a href="/pqrs" class="btn" style="background: #3498db; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
+                        Crear nueva solicitud
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

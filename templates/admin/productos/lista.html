@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Productos</title>
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CSS Productos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-productos.css') }}">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+    <div th:insert="~{componentes/navbar::navbar_no_user}"></div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div th:replace="~{componentes/sidebar :: sidebar}"></div>
+
+        <!-- Contenido -->
+        <main class="dashboard-main">
+            <div class="card">
+                <div class="header-actions">
+                    <h2><i class="fas fa-boxes" style="margin-right: 10px;"></i> Lista de Productos</h2>
+                    <a href="/admin/productos/crear" class="btn-crear"><i class="fas fa-plus"></i> Nuevo
+                        Producto</a>
+                </div>
+
+                <table class="table-productos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Categoría</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="producto : ${productos}">
+                            <td >{{ producto.idProducto }}<>1</td>
+                            <td>
+                                <!-- Soporte para imagenes simuladas o reales -->
+                                <img th:if="${producto.imagen != null}" th:src="@{'/img/' + ${producto.imagen}}"
+                                    onerror="this.style.display='none'" alt="Img"
+                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; background: #333;">
+                                <span th:if="${producto.imagen == null or producto.imagen == ''}"
+                                    style="color:#555; font-size:0.8rem;">-</span>
+                            </td>
+                            <td >{{ producto.nombre }}< style="font-weight: 500; color: white;">Nombre</td>
+                            <td >{{ #strings.abbreviate(producto.descripcion, 60) }}< style="color: #bbb;">Desc
+                            </td>
+                            <td >{{ '$' + #numbers.formatDecimal(producto.precio, 1, 'POINT', 0, 'COMMA') }}<
+                                style="color: #2ecc71; font-weight: bold;">$0</td>
+                            <td >{{ producto.categoria != null ? producto.categoria.nombre : 'Sin Categoría' }}<
+                                style="font-size: 0.9rem;">Cat</td>
+                            <td>
+                                <div style="display: flex;">
+                                    <a href="/admin/productos/editar/{id}(id=${producto.idProducto})"
+                                        class="btn-editar" title="Editar"><i class="fas fa-edit"></i></a>
+                                    <a href="#" th:onclick="'confirmarEliminacion(' + ${producto.idProducto} + ')'"
+                                        class="btn-eliminar" title="Eliminar"><i class="fas fa-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(productos)}">
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #777;">
+                                <i class="fas fa-box-open"
+                                    style="font-size: 3rem; margin-bottom: 10px; display: block;"></i>
+                                No hay productos en el inventario.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function confirmarEliminacion(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás revertir esto. El producto se eliminará permanentemente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c', // Rojo eliminar
+                cancelButtonColor: '#34495e', // Gris cancelar
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#2c3e50', // Fondo oscuro acorde al tema
+                color: '#ecf0f1' // Texto claro
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/admin/productos/eliminar/' + id;
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>
