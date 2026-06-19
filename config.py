@@ -6,9 +6,20 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'wydgarden_clave_secreta_super_segura')
     
-    # Railway provee DATABASE_URL con prefijo mysql://, pero SQLAlchemy requiere mysql+pymysql://
-    db_url = os.environ.get('DATABASE_URL') or 'mysql+pymysql://root:@localhost/wydgarden'
-    if db_url and db_url.startswith('mysql://'):
+    # Railway provee DATABASE_URL o MYSQL_URL, o variables separadas. Reconstruimos y adaptamos para PyMySQL.
+    db_url = os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL')
+    if not db_url and os.environ.get('MYSQLHOST'):
+        user = os.environ.get('MYSQLUSER', 'root')
+        password = os.environ.get('MYSQLPASSWORD', '')
+        host = os.environ.get('MYSQLHOST')
+        port = os.environ.get('MYSQLPORT', '3306')
+        db_name = os.environ.get('MYSQLDATABASE', 'wydgarden')
+        db_url = f"mysql://{user}:{password}@{host}:{port}/{db_name}"
+        
+    if not db_url:
+        db_url = 'mysql+pymysql://root:@localhost/wydgarden'
+        
+    if db_url.startswith('mysql://'):
         db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
         
     SQLALCHEMY_DATABASE_URI = db_url
