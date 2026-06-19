@@ -18,7 +18,7 @@
       <h2>Formulario PQRS</h2>
       <form id="pqrsForm" class="pqrs-form" action="{{ url_for('pqrs.pqrs') }}" method="POST">
         <label for="nombre">Nombre completo:</label>
-        <input type="text" id="nombre" name="nombre" required>
+        <input type="text" id="nombre" name="nombre" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras y espacios" required>
 
         <label for="correo">Correo electrónico:</label>
         <input type="email" id="correo" name="correo" required>

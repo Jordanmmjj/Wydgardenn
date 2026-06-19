@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Pedidos - WYDGARDEN</title>
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        {% include 'componentes/sidebar.html' %}
+
+        <!-- Contenido Principal -->
+        <main class="dashboard-main">
+            <div class="pedidos-section">
+                <h2><i class="fas fa-boxes"></i> Gestión de Pedidos</h2>
+
+                <!-- Alertas Flask -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="alerts-container">
+                            {% for category, message in messages %}
+                                <div class="alert-item alert-{{ category }}">
+                                    <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                                    <span>{{ message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="admin-pedidos-table-container">
+                    {% if not lista_pedidos %}
+                        <div style="text-align: center; padding: 40px; color: #cbd5e1;">
+                            <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 10px; display: block; color: #c0ebb9;"></i>
+                            <h3>No hay pedidos registrados en el sistema</h3>
+                        </div>
+                    {% else %}
+                        <table class="admin-pedidos-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente / Contacto</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Pago</th>
+                                    <th>Estado Actual</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in lista_pedidos %}
+                                    <tr>
+                                        <td><strong>#{{ pedido.id_pedido }}</strong></td>
+                                        <td>
+                                            <div style="font-weight: 600; color: white;">
+                                                {{ pedido.usuario.nombres }} {{ pedido.usuario.apellidos }}
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #94a3b8;">
+                                                {{ pedido.usuario.email }}
+                                            </div>
+                                            {% if pedido.usuario.telefono %}
+                                                <div style="font-size: 0.8rem; color: #94a3b8;">
+                                                    <i class="fas fa-phone"></i> {{ pedido.usuario.telefono }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span style="font-size: 0.85rem;">
+                                                {{ pedido.fecha_pedido.strftime('%d/%m/%Y %I:%M %p') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;">
+                                                {% for d in pedido.detalles %}
+                                                    <li style="margin-bottom: 3px;">
+                                                        <span style="background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; font-weight: 600; font-size: 0.75rem; margin-right: 4px;">x{{ d.cantidad }}</span>
+                                                        {{ d.producto.nombre }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <strong style="color: #c0ebb9;">${{ "{:,.0f}".format(pedido.total) }}</strong>
+                                        </td>
+                                        <td>
+                                            <span style="font-size: 0.85rem; font-weight: 500;">{{ pedido.metodo_pago }}</span>
+                                        </td>
+                                        <td>
+                                            {% if pedido.estado == 'PENDIENTE' %}
+                                                <span class="badge-estado badge-pendiente"><i class="fas fa-hourglass-start"></i> Pendiente</span>
+                                            {% elif pedido.estado == 'PROCESANDO' %}
+                                                <span class="badge-estado badge-procesando"><i class="fas fa-cog fa-spin"></i> Procesando</span>
+                                            {% elif pedido.estado == 'ENVIADO' %}
+                                                <span class="badge-estado badge-enviado"><i class="fas fa-truck"></i> Enviado</span>
+                                            {% elif pedido.estado == 'ENTREGADO' %}
+                                                <span class="badge-estado badge-entregado"><i class="fas fa-check-circle"></i> Entregado</span>
+                                            {% elif pedido.estado == 'CANCELADO' %}
+                                                <span class="badge-estado badge-cancelado"><i class="fas fa-times-circle"></i> Cancelado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form action="{{ url_for('pedidos.actualizar_estado', pedido_id=pedido.id_pedido) }}" method="POST" class="estado-form">
+                                                <select name="estado" class="estado-select">
+                                                    <option value="PENDIENTE" {% if pedido.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                                                    <option value="PROCESANDO" {% if pedido.estado == 'PROCESANDO' %}selected{% endif %}>Procesando</option>
+                                                    <option value="ENVIADO" {% if pedido.estado == 'ENVIADO' %}selected{% endif %}>Enviado</option>
+                                                    <option value="ENTREGADO" {% if pedido.estado == 'ENTREGADO' %}selected{% endif %}>Entregado</option>
+                                                    <option value="CANCELADO" {% if pedido.estado == 'CANCELADO' %}selected{% endif %}>Cancelar</option>
+                                                </select>
+                                                <button type="submit" class="btn-update-estado" title="Actualizar estado">
+                                                    <i class="fas fa-save"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content container">
+            <div class="link">
+                <h3>Contáctanos</h3>
+                <ul>
+                    <li><a href="tel:+3204910123">320 491 0123</a></li>
+                    <li><a href="tel:+3013190047">301 319 0047</a></li>
+                </ul>
+            </div>
+            <div class="link">
+                <h3>Correo de contacto</h3>
+                <ul>
+                    <li><a href="mailto:Wydgarden@gmail.com">Wydgarden@gmail.com</a></li>
+                </ul>
+            </div>
+            <div class="link">
+                <ul>
+                    <li>© WYDGARDEN</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -16,16 +16,13 @@ def dashboard():
         
     today = date.today()
     
-    # 1. Total Ventas Hoy
     ventas_hoy = Venta.query.filter(db.func.date(Venta.fecha_venta) == today).all()
     total_ventas_hoy = sum(v.total for v in ventas_hoy) if ventas_hoy else 0
     
-    # 2. Productos Vendidos Hoy
     pedidos_ids = [v.id_pedido for v in ventas_hoy]
     detalles = DetallePedido.query.filter(DetallePedido.id_pedido.in_(pedidos_ids)).all() if pedidos_ids else []
     productos_vendidos = sum(d.cantidad for d in detalles) if detalles else 0
     
-    # Meta Diaria 1M
     meta = 1000000
     porcentaje_ventas = min((total_ventas_hoy / meta) * 100, 100) if meta > 0 else 0
     
@@ -44,7 +41,6 @@ def reporte_hoy():
     ventas = Venta.query.filter(db.func.date(Venta.fecha_venta) == today).all()
     pdf_output = generar_pdf_ventas(ventas, f"DEL DIA {today.strftime('%d/%m/%Y')}")
     
-    # Asegurar que sea binario para evitar errores de descarga
     if isinstance(pdf_output, str):
         pdf_output = pdf_output.encode('latin-1')
 
@@ -87,16 +83,13 @@ def reporte_personalizado():
     
     if not inicio_str or not fin_str:
         return "Fechas requeridas", 400
-        
-    # Convertir strings a objetos date
+
     inicio = datetime.strptime(inicio_str, '%Y-%m-%d')
-    # Ajustar fin para que incluya todo el día (hasta las 23:59:59)
     fin = datetime.strptime(fin_str, '%Y-%m-%d') + timedelta(days=1)
     
     query = Venta.query.filter(Venta.fecha_venta >= inicio, Venta.fecha_venta < fin)
     
     if estado != 'TODOS':
-        # Unimos con Pedido para filtrar por estado
         query = query.join(Pedido).filter(Pedido.estado == estado)
         
     ventas = query.all()

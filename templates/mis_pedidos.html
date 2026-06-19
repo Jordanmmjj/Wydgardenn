@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos - WYDGARDEN</title>
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    {% include 'componentes/navbar.html' %}
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        {% include 'componentes/sidebar.html' %}
+
+        <!-- Contenido Principal -->
+        <main class="dashboard-main">
+            <div class="pedidos-section">
+                <h2><i class="fas fa-box-open"></i> Mis Pedidos</h2>
+
+                <!-- Alertas Flask -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="alerts-container">
+                            {% for category, message in messages %}
+                                <div class="alert-item alert-{{ category }}">
+                                    <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                                    <span>{{ message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% if not lista_pedidos %}
+                    <div class="card" style="text-align: center; padding: 40px 20px;">
+                        <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #c0ebb9; margin-bottom: 15px; display: block;"></i>
+                        <h3>Aún no has realizado pedidos</h3>
+                        <p style="color: #cbd5e1; margin-bottom: 20px;">¡Explora nuestro catálogo y llévate las mejores plantas y decoraciones!</p>
+                        <a href="/catalogo" class="btn btn-success" style="text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600;">Ver Catálogo</a>
+                    </div>
+                {% else %}
+                    <!-- Lista de Pedidos -->
+                    {% for pedido in lista_pedidos %}
+                        <div class="pedido-card">
+                            <div class="pedido-card-header">
+                                <div class="pedido-info-principal">
+                                    <span class="pedido-numero">Pedido #{{ pedido.id_pedido }}</span>
+                                    <span class="pedido-fecha">Realizado el: {{ pedido.fecha_pedido.strftime('%d/%m/%Y %I:%M %p') }}</span>
+                                </div>
+                                <div class="pedido-estado-wrapper">
+                                    {% if pedido.estado == 'PENDIENTE' %}
+                                        <span class="badge-estado badge-pendiente"><i class="fas fa-hourglass-start"></i> Pendiente</span>
+                                    {% elif pedido.estado == 'PROCESANDO' %}
+                                        <span class="badge-estado badge-procesando"><i class="fas fa-cog fa-spin"></i> Procesando</span>
+                                    {% elif pedido.estado == 'ENVIADO' %}
+                                        <span class="badge-estado badge-enviado"><i class="fas fa-truck"></i> Enviado</span>
+                                    {% elif pedido.estado == 'ENTREGADO' %}
+                                        <span class="badge-estado badge-entregado"><i class="fas fa-check-circle"></i> Entregado</span>
+                                    {% elif pedido.estado == 'CANCELADO' %}
+                                        <span class="badge-estado badge-cancelado"><i class="fas fa-times-circle"></i> Cancelado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="pedido-card-body">
+                                <div class="pedido-metodo-pago">
+                                    <i class="fas fa-credit-card" style="margin-right: 5px;"></i> Método de Pago: <strong>{{ pedido.metodo_pago }}</strong>
+                                    {% if pedido.metodo_pago == 'NEQUI' and pedido.estado == 'PENDIENTE' %}
+                                        <p style="font-size: 0.8rem; color: #fbbf24; margin-top: 5px;">
+                                            <i class="fas fa-info-circle"></i> Recuerda transferir a Nequi al <strong>3204910123</strong> y el administrador validará tu pago.
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="pedido-productos-list">
+                                    <h4 style="margin-bottom: 10px; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Detalles de Productos:</h4>
+                                    {% for detalle in pedido.detalles %}
+                                        <div class="pedido-producto-item">
+                                            <div class="pedido-producto-info">
+                                                <span class="pedido-producto-cant">x{{ detalle.cantidad }}</span>
+                                                <span>{{ detalle.producto.nombre }}</span>
+                                            </div>
+                                            <span>${{ "{:,.0f}".format(detalle.subtotal) }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="pedido-total-row">
+                                    <span>Total pagado:</span>
+                                    <span class="pedido-total-val">${{ "{:,.0f}".format(pedido.total) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content container">
+            <div class="link">
+                <h3>Contáctanos</h3>
+                <ul>
+                    <li><a href="tel:+3204910123">320 491 0123</a></li>
+                    <li><a href="tel:+3013190047">301 319 0047</a></li>
+                </ul>
+            </div>
+            <div class="link">
+                <h3>Correo de contacto</h3>
+                <ul>
+                    <li><a href="mailto:Wydgarden@gmail.com">Wydgarden@gmail.com</a></li>
+                </ul>
+            </div>
+            <div class="link">
+                <ul>
+                    <li>© WYDGARDEN</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,306 @@
+/* === ESTILOS DEL MÓDULO DE PEDIDOS (Glassmorphism & Dark Green Theme) === */
+
+/* Contenedor principal de pedidos */
+.pedidos-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.pedidos-section h2 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilo de Tarjetas de Pedido (Usuario) */
+.pedido-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 15px;
+}
+
+.pedido-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.pedido-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pedido-info-principal {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pedido-numero {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.pedido-fecha {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+}
+
+/* Badges de Estado */
+.badge-estado {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.badge-pendiente {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.badge-procesando {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.badge-enviado {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.badge-entregado {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.badge-cancelado {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* Cuerpo del Pedido */
+.pedido-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pedido-metodo-pago {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.pedido-metodo-pago strong {
+    color: #ffffff;
+}
+
+.pedido-productos-list {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.pedido-producto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+}
+
+.pedido-producto-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.pedido-producto-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pedido-producto-cant {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pedido-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.pedido-total-val {
+    color: #c0ebb9;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Tabla de Administración */
+.admin-pedidos-table-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow-x: auto;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.admin-pedidos-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+
+.admin-pedidos-table th, 
+.admin-pedidos-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-pedidos-table th {
+    background: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.admin-pedidos-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Formulario de cambio de estado */
+.estado-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.estado-select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: white;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.estado-select:focus {
+    border-color: #3b82f6;
+}
+
+.estado-select option {
+    background: #12431f;
+    color: white;
+}
+
+.btn-update-estado {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-update-estado:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Alertas de retroalimentación */
+.alerts-container {
+    margin-bottom: 15px;
+}
+
+.alert-item {
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Vista móvil responsive */
+@media (max-width: 768px) {
+    .admin-pedidos-table th, 
+    .admin-pedidos-table td {
+        padding: 10px 12px;
+    }
+    
+    .estado-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

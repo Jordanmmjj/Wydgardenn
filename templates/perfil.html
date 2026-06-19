@@ -45,12 +45,12 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="form-group" style="margin-bottom: 20px;">
               <label style="display: block; margin-bottom: 5px;">Nombre</label>
-              <input type="text" name="nombres" value="{{ current_user.nombres }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" required>
+              <input type="text" name="nombres" value="{{ current_user.nombres }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras y espacios" required>
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
               <label style="display: block; margin-bottom: 5px;">Apellido</label>
-              <input type="text" name="apellidos" value="{{ current_user.apellidos }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" required>
+              <input type="text" name="apellidos" value="{{ current_user.apellidos }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras y espacios" required>
             </div>
           </div>
 

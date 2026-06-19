@@ -157,6 +157,52 @@
       </iframe>
     </section>
   </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const inner = document.querySelector('.slider-inner');
+      const items = document.querySelectorAll('.slider-item');
+      if (!inner || items.length === 0) return;
+      
+      let currentIndex = 0;
+      
+      function slide() {
+        // Obtiene el ancho de un elemento más su margen derecho dinámicamente
+        const itemStyle = window.getComputedStyle(items[0]);
+        const itemWidth = items[0].offsetWidth + parseFloat(itemStyle.marginRight);
+        
+        // Calcula el límite máximo de desplazamiento
+        const containerWidth = inner.parentElement.clientWidth;
+        const totalWidth = inner.scrollWidth;
+        const maxScroll = totalWidth - containerWidth;
+        
+        currentIndex++;
+        let scrollAmount = currentIndex * itemWidth;
+        
+        // Si el desplazamiento excede el límite máximo, vuelve al inicio
+        if (scrollAmount > maxScroll + 10) {
+          currentIndex = 0;
+          scrollAmount = 0;
+        }
+        
+        inner.style.transform = `translateX(-${scrollAmount}px)`;
+      }
+      
+      // Desplaza automáticamente cada 3.5 segundos
+      let slideInterval = setInterval(slide, 3500);
+      
+      // Detiene la animación temporalmente cuando el cursor está encima
+      const sliderContainer = document.querySelector('.slider');
+      if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+          clearInterval(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+          slideInterval = setInterval(slide, 3500);
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>

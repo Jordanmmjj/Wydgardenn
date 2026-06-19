@@ -15,7 +15,6 @@ auth_bp = Blueprint('auth', __name__)
 def validar_password_fuerte(password):
     if len(password) < 8:
         return "La contraseña debe tener al menos 8 caracteres."
-    # Se ha relajado por petición: Solo pedimos los 8 caracteres.
     return None
 
 def enviar_correo_generico(destinatario, asunto, cuerpo):
@@ -39,7 +38,6 @@ def enviar_correo_bienvenida(destinatario_usuario, nombre_usuario):
     asunto = "¡Bienvenido a WYDGARDEN!"
     cuerpo = f"Hola {nombre_usuario},\n\nHas creado tu cuenta exitosamente. ¡Bienvenido a nuestra tienda!"
     enviar_correo_generico(destinatario_usuario, asunto, cuerpo)
-    # Notificar admin
     admin_email = current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')
     enviar_correo_generico(admin_email, "🌱 NUEVO REGISTRO", f"Nuevo usuario: {nombre_usuario} ({destinatario_usuario})")
 
@@ -55,9 +53,9 @@ def login():
         if user:
             if user.password == password: is_valid = True
             elif check_password_hash(user.password, password): is_valid = True
-            elif user.password.startswith('$2a$') or user.password.startswith('$2b$'):
+            elif user.password.startswith('$2a$') or user.password.startswith('$2b$') or user.password.startswith('$2y$'):
                 try:
-                    hp = user.password.replace('$2a$', '$2b$').encode('utf-8')
+                    hp = user.password.replace('$2a$', '$2b$').replace('$2y$', '$2b$').encode('utf-8')
                     if bcrypt.checkpw(password.encode('utf-8'), hp): is_valid = True
                 except: pass
         if user and is_valid:
@@ -71,8 +69,15 @@ def registro():
     if current_user.is_authenticated: return redirect(url_for('home'))
     if request.method == 'POST':
         nombres = request.form.get('nombre')
+        apellidos = request.form.get('apellido')
         email = request.form.get('correo')
         password = request.form.get('contraseña')
+
+        # Validación de solo letras
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombres) or not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", apellidos):
+            flash('Los nombres y apellidos solo pueden contener letras.', 'error')
+            return redirect(url_for('auth.registro'))
+
         if Usuario.query.filter_by(email=email).first():
             flash('El correo ya existe.', 'error')
             return redirect(url_for('auth.registro'))
@@ -81,7 +86,7 @@ def registro():
             flash(err, 'error')
             return redirect(url_for('auth.registro'))
         rol_u = Rol.query.filter_by(nombre='USUARIO').first() or Rol(nombre='USUARIO')
-        u = Usuario(nombres=nombres, apellidos='', email=email, password=generate_password_hash(password), rol=rol_u)
+        u = Usuario(nombres=nombres, apellidos=apellidos, email=email, password=generate_password_hash(password), rol=rol_u)
         db.session.add(u)
         db.session.commit()
         enviar_correo_bienvenida(email, nombres)
@@ -93,7 +98,6 @@ def registro():
 def recuperar_password():
     if request.method == 'POST':
         email_input = request.form.get('email', '').strip()
-        # Búsqueda insensible a mayúsculas
         from sqlalchemy import func
         user = Usuario.query.filter(func.lower(Usuario.email) == email_input.lower()).first()
         

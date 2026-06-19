@@ -77,12 +77,10 @@ def checkout():
     metodo_pago = request.form.get('metodoPago', 'EFECTIVO')
     total_pedido = sum(i.producto.precio * i.cantidad for i in items)
     
-    # 1. Crear Pedido
-    nuevo_pedido = Pedido(id_usuario=current_user.id, total=total_pedido, estado='ENTREGADO', metodo_pago=metodo_pago)
+    nuevo_pedido = Pedido(id_usuario=current_user.id, total=total_pedido, estado='PENDIENTE', metodo_pago=metodo_pago)
     db.session.add(nuevo_pedido)
     db.session.flush() # Para obtener el ID
     
-    # 2. Crear Detalles y bajar stock
     for i in items:
         prod = i.producto
         if prod.stock < i.cantidad:
@@ -95,22 +93,23 @@ def checkout():
         db.session.add(detalle)
         db.session.delete(i) # Borrar del carrito
         
-    # 3. Registrar Venta (Para el Dashboard y Reportes)
     nueva_venta = Venta(id_usuario=current_user.id, total=total_pedido, id_pedido=nuevo_pedido.id_pedido)
     db.session.add(nueva_venta)
     
     db.session.commit()
 
-    # --- 4. ENVIAR CORREO DE NOTIFICACIÓN (ADMIN) ---
     try:
-        # Importamos mail desde app para evitar circular dependency
         from app import mail
         fecha_actual = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         
         num_nequi = request.form.get('numeroNequi', 'No proporcionado')
         detalle_pago = f"Nequi: {num_nequi}" if metodo_pago == 'NEQUI' else "Efectivo"
         
-        cuerpo = f"""
+        lista_productos = ""
+        for item_cart in items:
+            lista_productos += f"- {item_cart.producto.nombre} x{item_cart.cantidad}: ${item_cart.producto.precio * item_cart.cantidad:,.0f}\n"
+
+        cuerpo_admin = f"""
         ¡Nueva venta realizada en WYDGARDEN!
         -----------------------------------
         ID Pedido: {nuevo_pedido.id_pedido}
@@ -121,18 +120,63 @@ def checkout():
         Método de Pago: {metodo_pago}
         Detalle Pago: {detalle_pago}
         
-        VALOR PAGADO: ${total_pedido:,.0f}
+        PRODUCTOS:
+        {lista_productos}
+        
+        VALOR TOTAL: ${total_pedido:,.0f}
         -----------------------------------
         ¡Revisa el dashboard para empacar el pedido!
         """
         
         from flask import current_app
-        msg = Message(subject=f"🌵 Notificación de Venta #{nuevo_pedido.id_pedido}",
-                      body=cuerpo,
-                      recipients=[current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')]) # Se lo envía al admin
-        mail.send(msg)
-        print("Correo de venta enviado correctamente.")
-    except Exception as e:
-        print(f"Correo no enviado: {e}")
+        msg_admin = Message(subject=f"🌵 Notificación de Venta #{nuevo_pedido.id_pedido}",
+                           body=cuerpo_admin,
+                           recipients=[current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')])
+        mail.send(msg_admin)
 
-    return render_template('compra_exitosa.html', total=total_pedido, id_pedido=nuevo_pedido.id_pedido)
+        instrucciones_pago = ""
+        if metodo_pago == 'NEQUI':
+            instrucciones_pago = f"""
+        -----------------------------------
+        INSTRUCCIONES DE PAGO (NEQUI)
+        -----------------------------------
+        Por favor realiza la transferencia de ${total_pedido:,.0f} 
+        al número de la empresa: 3204910123
+        Una vez realizado el pago, tu pedido será procesado.
+        -----------------------------------
+        """
+
+        cuerpo_usuario = f"""
+        🌵 ¡Hola {current_user.nombres}! Gracias por tu compra en WYDGARDEN.
+        
+        Tu pedido #{nuevo_pedido.id_pedido} ha sido registrado con éxito. 
+        Aquí tienes los detalles de tu compra:
+        {instrucciones_pago}
+        -----------------------------------
+        RESUMEN DE FACTURA
+        -----------------------------------
+        Fecha: {fecha_actual}
+        Método de Pago: {metodo_pago}
+        {f"Tu Número Nequi (Referencia): {num_nequi}" if metodo_pago == 'NEQUI' else ""}
+        
+        PRODUCTOS:
+        {lista_productos}
+        
+        TOTAL A PAGAR: ${total_pedido:,.0f}
+        -----------------------------------
+        Estado del pedido: PENDIENTE DE VALIDACIÓN
+        
+        Estamos preparando tus productos. Te notificaremos cuando estén en camino.
+        ¡Gracias por confiar en nosotros!
+        """
+        
+        msg_usuario = Message(subject=f"🌵 Tu Factura de Compra WYDGARDEN #{nuevo_pedido.id_pedido}",
+                             body=cuerpo_usuario,
+                             recipients=[current_user.email])
+        mail.send(msg_usuario)
+        
+        print(f"Correos de venta (admin y usuario) enviados correctamente.")
+    except Exception as e:
+        print(f"Error al enviar correos: {e}")
+
+    return render_template('compra_exitosa.html', total=total_pedido, id_pedido=nuevo_pedido.id_pedido, metodo_pago=metodo_pago)

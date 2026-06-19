@@ -109,7 +109,7 @@
         <div style="margin-top: 30px; text-align: right; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
           <a href="/catalogo" style="color: #aaa; text-decoration: none; margin-right: 20px;">Seguir Comprando</a>
 
-          <form method="POST" action="/carrito/checkout" style="display:inline;">
+          <form method="POST" action="/carrito/checkout" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas finalizar tu compra en WYDGARDEN?');">
             <div style="margin-bottom: 20px; text-align: right;">
               <h4 style="margin-bottom: 10px;">Método de Pago:</h4>
               <label style="margin-right: 15px; cursor: pointer;">
@@ -122,9 +122,10 @@
 
             <!-- Campo Nequi oculto por defecto -->
             <div id="nequi-container" style="display:none; margin-bottom: 20px; text-align: right;">
-              <label>Número de Nequi:</label>
+              <p style="font-weight: bold; color: #28a745; margin-bottom: 5px;">Transferir al Nequi: 3204910123</p>
+              <label>Tu número de Nequi (Referencia):</label>
               <input type="text" name="numeroNequi" placeholder="320..." style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; width: 250px;">
-              <p style="font-size: 0.8rem; color: #888;">El valor a pagar será informado en el siguiente paso.</p>
+              <p style="font-size: 0.8rem; color: #888;">Por favor indica el número desde el cual realizarás el pago.</p>
             </div>
 
             <button type="submit" class="btn btn-success" style="font-size: 1.1rem; padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">

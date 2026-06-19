@@ -12,7 +12,6 @@ def pqrs():
         tipo = request.form.get('tipo')
         mensaje = request.form.get('mensaje')
         
-        # En el formulario original piden nombre y correo, pero como ya está logueado, lo tomamos del current_user
         nueva_pqrs = Pqrs(
             id_usuario=current_user.id,
             nombre=current_user.nombres,
@@ -34,7 +33,6 @@ def pqrs():
 @pqrs_bp.route('/pqrs/enviar', methods=['POST'])
 @login_required
 def enviar_pqrs():
-    # Helper por si el form apunta a esta ruta específica
     return pqrs()
 
 @pqrs_bp.route('/mis-pqrs')

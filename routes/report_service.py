@@ -8,8 +8,6 @@ class ReportePDF(FPDF):
         logo_path = os.path.join(os.getcwd(), 'static', 'img', 'logo.ico') # O un png si tienes
         if os.path.exists(logo_path):
             try:
-                # Los ICO pueden fallar en FPDF, mejor si fuera un PNG
-                # self.image(logo_path, 10, 8, 33) 
                 pass
             except:
                 pass
@@ -32,12 +30,10 @@ def generar_pdf_ventas(ventas, titulo_periodo="GENERAL"):
     pdf = ReportePDF()
     pdf.add_page()
     
-    # Título de tabla
     pdf.set_font('helvetica', 'B', 14)
     pdf.cell(0, 10, f"Resumen de Ventas: {titulo_periodo}", 0, 1, 'L')
     pdf.ln(5)
     
-    # Encabezados de Tabla
     pdf.set_fill_color(40, 114, 51) # Fondo verde para cabecera
     pdf.set_text_color(255, 255, 255) # Texto blanco
     pdf.set_font('helvetica', 'B', 10)
@@ -49,13 +45,11 @@ def generar_pdf_ventas(ventas, titulo_periodo="GENERAL"):
         pdf.cell(col_widths[i], 10, h, 1, 0, 'C', fill=True)
     pdf.ln()
     
-    # Filas de Datos
     pdf.set_text_color(0, 0, 0)
     pdf.set_font('helvetica', '', 9)
     total_acumulado = 0
     
     for v in ventas:
-        # Formatear fecha
         try:
             f_str = v.fecha_venta.strftime('%d/%m/%Y %H:%M') if v.fecha_venta else "S/F"
         except:
@@ -70,17 +64,13 @@ def generar_pdf_ventas(ventas, titulo_periodo="GENERAL"):
         pdf.ln()
         total_acumulado += v.total
     
-    # Fila de gran total
     pdf.ln(5)
     pdf.set_font('helvetica', 'B', 12)
     pdf.set_fill_color(240, 240, 240)
     pdf.cell(sum(col_widths[:-1]), 12, "TOTAL RECAUDADO EN EL PERÍODO:", 1, 0, 'R', fill=True)
     pdf.cell(col_widths[-1], 12, f"${total_acumulado:,.0f}", 1, 1, 'R', fill=True)
     
-    # Manejar salida para fpdf o fpdf2
     try:
-        # En fpdf2 output() sin parámetros devuelve bytes
         return pdf.output()
     except:
-        # En fpdf clásico necesitamos dest='S'
         return pdf.output(dest='S')

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
 from models import db, Producto, Usuario
 from flask_login import LoginManager, current_user
@@ -51,6 +51,9 @@ def create_app():
     from routes.pqrs_routes import pqrs_bp
     app.register_blueprint(pqrs_bp)
 
+    from routes.pedidos_routes import pedidos_bp
+    app.register_blueprint(pedidos_bp)
+
     from flask import send_from_directory
     @app.route('/storage/<path:filename>')
     def storage(filename):
@@ -59,6 +62,37 @@ def create_app():
     @app.route('/perfil')
     def perfil():
         return render_template('perfil.html')
+
+    @app.route('/perfil/actualizar', methods=['POST'])
+    def actualizar_perfil():
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        nombres = request.form.get('nombres')
+        apellidos = request.form.get('apellidos')
+        telefono = request.form.get('telefono')
+        password = request.form.get('password')
+
+        # Validación de solo letras
+        import re
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombres) or not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", apellidos):
+            from flask import flash
+            flash('Los nombres y apellidos solo pueden contener letras.', 'error')
+            return redirect(url_for('perfil'))
+
+        current_user.nombres = nombres
+        current_user.apellidos = apellidos
+        current_user.telefono = telefono
+        
+        if password:
+            from werkzeug.security import generate_password_hash
+            current_user.password = generate_password_hash(password)
+        
+        from models import db
+        db.session.commit()
+        from flask import flash
+        flash('Perfil actualizado con éxito.', 'success')
+        return redirect(url_for('perfil'))
 
     return app
 
