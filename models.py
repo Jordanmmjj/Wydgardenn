@@ -59,6 +59,22 @@ class Pedido(db.Model):
 
     usuario = db.relationship('Usuario', backref=db.backref('pedidos', lazy=True))
 
+    @property
+    def fecha_limite(self):
+        from datetime import timedelta
+        from flask import current_app
+        try:
+            limite_horas = current_app.config.get('LIMITE_HORAS_EXPIRACION', 24)
+        except Exception:
+            limite_horas = 24
+        return self.fecha_pedido + timedelta(hours=limite_horas)
+
+    @property
+    def esta_expirado(self):
+        from datetime import datetime
+        return self.estado == 'PENDIENTE' and datetime.now() > self.fecha_limite
+
+
 class DetallePedido(db.Model):
     __tablename__ = 'detalles_pedido'
     id_detalle = db.Column('id_detalle', db.Integer, primary_key=True)

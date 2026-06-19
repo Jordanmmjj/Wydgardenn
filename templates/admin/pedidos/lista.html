@@ -76,9 +76,14 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <span style="font-size: 0.85rem;">
+                                            <span style="font-size: 0.85rem; display: block;">
                                                 {{ pedido.fecha_pedido.strftime('%d/%m/%Y %I:%M %p') }}
                                             </span>
+                                            {% if pedido.estado == 'PENDIENTE' %}
+                                                <span style="font-size: 0.72rem; color: #fbbf24; display: block; margin-top: 4px; font-weight: 500;" title="Fecha Límite">
+                                                    <i class="fas fa-clock"></i> Límite: {{ pedido.fecha_limite.strftime('%d/%m/%Y %I:%M %p') }}
+                                                </span>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;">
@@ -98,7 +103,13 @@
                                         </td>
                                         <td>
                                             {% if pedido.estado == 'PENDIENTE' %}
-                                                <span class="badge-estado badge-pendiente"><i class="fas fa-hourglass-start"></i> Pendiente</span>
+                                                {% if pedido.esta_expirado %}
+                                                    <span class="badge-estado badge-cancelado" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: #ef4444; padding: 3px 8px; font-size: 0.78rem;" title="Ha excedido el tiempo límite de pago/recogida">
+                                                        <i class="fas fa-exclamation-circle"></i> Expirado
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge-estado badge-pendiente"><i class="fas fa-hourglass-start"></i> Pendiente</span>
+                                                {% endif %}
                                             {% elif pedido.estado == 'PROCESANDO' %}
                                                 <span class="badge-estado badge-procesando"><i class="fas fa-cog fa-spin"></i> Procesando</span>
                                             {% elif pedido.estado == 'ENVIADO' %}

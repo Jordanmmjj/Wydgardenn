@@ -66,6 +66,41 @@ def actualizar_carrito(carrito_id):
             db.session.commit()
     return redirect(url_for('shop.ver_carrito'))
 
+def verificar_alerta_stock(producto):
+    from flask import current_app
+    from flask_mail import Message
+    from app import mail
+    
+    limite_stock = current_app.config.get('STOCK_MINIMO_ALERTA', 5)
+    if producto.stock <= limite_stock:
+        try:
+            cuerpo_admin = f"""
+            ⚠️ ¡ALERTA DE STOCK BAJO! 🌵
+            
+            Queremos informarte que el producto "{producto.nombre}" (ID: {producto.id}) tiene un nivel de stock bajo.
+            
+            -----------------------------------
+            DETALLES DEL PRODUCTO
+            -----------------------------------
+            ID Producto: {producto.id}
+            Nombre: {producto.nombre}
+            Stock Actual: {producto.stock} unidades
+            Precio: ${producto.precio:,.0f}
+            
+            Por favor, ingresa al panel de administración para reabastecer el inventario o actualizar/eliminar el producto.
+            
+            ¡Alerta del Sistema de WYDGARDEN!
+            """
+            msg = Message(
+                subject=f"⚠️ Alerta de Stock Bajo: {producto.nombre} ({producto.stock} uds)",
+                body=cuerpo_admin,
+                recipients=[current_app.config.get('ADMIN_EMAIL', 'jordancely00@gmail.com')]
+            )
+            mail.send(msg)
+            print(f"Correo de alerta de stock bajo enviado al administrador para: {producto.nombre}")
+        except Exception as e:
+            print(f"Error al enviar correo de alerta de stock bajo para {producto.nombre}: {e}")
+
 @shop_bp.route('/carrito/checkout', methods=['POST'])
 @login_required
 def checkout():
@@ -81,6 +116,7 @@ def checkout():
     db.session.add(nuevo_pedido)
     db.session.flush() # Para obtener el ID
     
+    productos_comprados = []
     for i in items:
         prod = i.producto
         if prod.stock < i.cantidad:
@@ -90,6 +126,7 @@ def checkout():
         
         detalle = DetallePedido(id_pedido=nuevo_pedido.id_pedido, id_producto=prod.id, cantidad=i.cantidad, precio_unitario=prod.precio, subtotal=prod.precio*i.cantidad)
         prod.stock -= i.cantidad
+        productos_comprados.append((prod, i.cantidad))
         db.session.add(detalle)
         db.session.delete(i) # Borrar del carrito
         
@@ -97,6 +134,13 @@ def checkout():
     db.session.add(nueva_venta)
     
     db.session.commit()
+
+    # Verificar alertas de stock bajo después del commit
+    for prod, cant in productos_comprados:
+        try:
+            verificar_alerta_stock(prod)
+        except Exception as e:
+            print(f"Error al verificar alerta de stock durante checkout: {e}")
 
     try:
         from app import mail
@@ -106,8 +150,8 @@ def checkout():
         detalle_pago = f"Nequi: {num_nequi}" if metodo_pago == 'NEQUI' else "Efectivo"
         
         lista_productos = ""
-        for item_cart in items:
-            lista_productos += f"- {item_cart.producto.nombre} x{item_cart.cantidad}: ${item_cart.producto.precio * item_cart.cantidad:,.0f}\n"
+        for prod, cant in productos_comprados:
+            lista_productos += f"- {prod.nombre} x{cant}: ${prod.precio * cant:,.0f}\n"
 
         cuerpo_admin = f"""
         ¡Nueva venta realizada en WYDGARDEN!
@@ -146,6 +190,7 @@ def checkout():
         -----------------------------------
         """
 
+        limite_horas = current_app.config.get('LIMITE_HORAS_EXPIRACION', 24)
         cuerpo_usuario = f"""
         🌵 ¡Hola {current_user.nombres}! Gracias por tu compra en WYDGARDEN.
         
@@ -166,6 +211,8 @@ def checkout():
         -----------------------------------
         Estado del pedido: PENDIENTE DE VALIDACIÓN
         
+        ⚠️ IMPORTANTE: Recuerda que tienes un plazo máximo de {limite_horas} horas para realizar el pago o recoger tu pedido. De lo contrario, se cancelará automáticamente para liberar los productos en stock.
+        
         Estamos preparando tus productos. Te notificaremos cuando estén en camino.
         ¡Gracias por confiar en nosotros!
         """
@@ -180,3 +227,4 @@ def checkout():
         print(f"Error al enviar correos: {e}")
 
     return render_template('compra_exitosa.html', total=total_pedido, id_pedido=nuevo_pedido.id_pedido, metodo_pago=metodo_pago)
+

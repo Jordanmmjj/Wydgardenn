@@ -53,6 +53,11 @@
                                 <div class="pedido-info-principal">
                                     <span class="pedido-numero">Pedido #{{ pedido.id_pedido }}</span>
                                     <span class="pedido-fecha">Realizado el: {{ pedido.fecha_pedido.strftime('%d/%m/%Y %I:%M %p') }}</span>
+                                    {% if pedido.estado == 'PENDIENTE' %}
+                                        <div style="font-size: 0.82rem; color: #fbbf24; margin-top: 5px; font-weight: 500;">
+                                            <i class="fas fa-calendar-times"></i> Pagar/recoger antes de: {{ pedido.fecha_limite.strftime('%d/%m/%Y %I:%M %p') }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="pedido-estado-wrapper">
                                     {% if pedido.estado == 'PENDIENTE' %}
@@ -76,6 +81,12 @@
                                         <p style="font-size: 0.8rem; color: #fbbf24; margin-top: 5px;">
                                             <i class="fas fa-info-circle"></i> Recuerda transferir a Nequi al <strong>3204910123</strong> y el administrador validará tu pago.
                                         </p>
+                                    {% endif %}
+                                    {% if pedido.estado == 'PENDIENTE' %}
+                                        <div style="background: rgba(251,191,36,0.08); border-left: 3px solid #fbbf24; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 0.8rem; color: #cbd5e1;">
+                                            <i class="fas fa-exclamation-triangle" style="color: #fbbf24; margin-right: 5px;"></i>
+                                            Realiza el pago o recoge tus productos a tiempo para que tu compra no expire.
+                                        </div>
                                     {% endif %}
                                 </div>
 
