@@ -1,6 +1,7 @@
 import re
 import smtplib
 import bcrypt
+import dns.resolver
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
@@ -16,6 +17,30 @@ def validar_password_fuerte(password):
     if len(password) < 8:
         return "La contraseña debe tener al menos 8 caracteres."
     return None
+
+def validar_email(email):
+    """Valida formato del correo y que el dominio exista (DNS MX/A)."""
+    # 1. Validar formato con regex
+    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(patron, email):
+        return "El formato del correo no es válido."
+
+    # 2. Verificar que el dominio existe (tiene registros MX o A)
+    dominio = email.split('@')[1]
+    try:
+        dns.resolver.resolve(dominio, 'MX')
+        return None  # Dominio válido con registros MX
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.NoNameservers):
+        pass
+    except Exception:
+        pass
+
+    # Fallback: intentar con registro A
+    try:
+        dns.resolver.resolve(dominio, 'A')
+        return None  # Dominio válido con registro A
+    except Exception:
+        return "El dominio del correo no existe. Verifica tu correo."
 
 def enviar_correo_generico(destinatario, asunto, cuerpo):
     try:
@@ -76,6 +101,12 @@ def registro():
         # Validación de solo letras
         if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombres) or not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", apellidos):
             flash('Los nombres y apellidos solo pueden contener letras.', 'error')
+            return redirect(url_for('auth.registro'))
+
+        # Validación real del correo (formato + dominio DNS)
+        err_email = validar_email(email)
+        if err_email:
+            flash(err_email, 'error')
             return redirect(url_for('auth.registro'))
 
         if Usuario.query.filter_by(email=email).first():
