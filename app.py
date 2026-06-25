@@ -10,14 +10,18 @@ mail = Mail()
 def send_async_email(app, msg):
     with app.app_context():
         try:
+            print(f"DEBUG Async Thread: Iniciando mail.send para {msg.recipients}", flush=True)
             mail.send(msg)
-            print(f"DEBUG Async: Correo enviado con éxito a {msg.recipients}")
+            print(f"DEBUG Async: Correo enviado con éxito a {msg.recipients}", flush=True)
         except Exception as e:
-            print(f"Error enviando correo async a {msg.recipients}: {e}")
+            print(f"Error enviando correo async a {msg.recipients}: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
 
 def enviar_correo_async(msg):
     from flask import current_app
     app = current_app._get_current_object()
+    print(f"DEBUG: Spawning thread to send email to {msg.recipients}", flush=True)
     Thread(target=send_async_email, args=(app, msg)).start()
 
 def create_app():
