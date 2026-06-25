@@ -34,7 +34,7 @@ def verificar_y_cancelar_pedidos_expirados():
         
         # Enviar correo de notificación
         try:
-            from app import mail
+            from app import enviar_correo_async
             cuerpo_usuario = f"""
             🌵 ¡Hola {pedido.usuario.nombres}!
             
@@ -56,8 +56,8 @@ def verificar_y_cancelar_pedidos_expirados():
                 body=cuerpo_usuario,
                 recipients=[pedido.usuario.email]
             )
-            mail.send(msg)
-            print(f"Pedido #{pedido.id_pedido} cancelado automáticamente por expiración.")
+            enviar_correo_async(msg)
+            print(f"Pedido #{pedido.id_pedido} cancelado automáticamente por expiración (correo en cola).")
         except Exception as e:
             print(f"Error al enviar correo de expiración para pedido #{pedido.id_pedido}: {e}")
             
@@ -141,7 +141,7 @@ def actualizar_estado(pedido_id):
         
         # Enviar correo de notificación al usuario sobre el cambio de estado
         try:
-            from app import mail
+            from app import enviar_correo_async
             cuerpo_usuario = f"""
             🌵 ¡Hola {pedido.usuario.nombres}!
             
@@ -169,8 +169,8 @@ def actualizar_estado(pedido_id):
             msg = Message(subject=f"🌵 Actualización de Pedido #{pedido.id_pedido} - {nuevo_estado}",
                           body=cuerpo_usuario,
                           recipients=[pedido.usuario.email])
-            mail.send(msg)
-            print(f"Correo de actualización de estado enviado a {pedido.usuario.email}")
+            enviar_correo_async(msg)
+            print(f"Correo de actualización de estado enviado a {pedido.usuario.email} (async)")
         except Exception as e:
             print(f"Error al enviar correo de actualización de estado: {e}")
             

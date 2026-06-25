@@ -3,8 +3,22 @@ from config import Config
 from models import db, Producto, Usuario
 from flask_login import LoginManager, current_user
 from flask_mail import Mail
+from threading import Thread
 
 mail = Mail()
+
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+            print(f"DEBUG Async: Correo enviado con éxito a {msg.recipients}")
+        except Exception as e:
+            print(f"Error enviando correo async a {msg.recipients}: {e}")
+
+def enviar_correo_async(msg):
+    from flask import current_app
+    app = current_app._get_current_object()
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 def create_app():
     app = Flask(__name__)

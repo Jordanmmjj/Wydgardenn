@@ -69,7 +69,7 @@ def actualizar_carrito(carrito_id):
 def verificar_alerta_stock(producto):
     from flask import current_app
     from flask_mail import Message
-    from app import mail
+    from app import enviar_correo_async
     
     limite_stock = current_app.config.get('STOCK_MINIMO_ALERTA', 5)
     if producto.stock <= limite_stock:
@@ -96,8 +96,8 @@ def verificar_alerta_stock(producto):
                 body=cuerpo_admin,
                 recipients=[current_app.config.get('ADMIN_EMAIL', 'jordancely00@gmail.com')]
             )
-            mail.send(msg)
-            print(f"Correo de alerta de stock bajo enviado al administrador para: {producto.nombre}")
+            enviar_correo_async(msg)
+            print(f"Correo de alerta de stock bajo enviado al administrador para: {producto.nombre} (async)")
         except Exception as e:
             print(f"Error al enviar correo de alerta de stock bajo para {producto.nombre}: {e}")
 
@@ -143,7 +143,7 @@ def checkout():
             print(f"Error al verificar alerta de stock durante checkout: {e}")
 
     try:
-        from app import mail
+        from app import enviar_correo_async
         fecha_actual = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         
         num_nequi = request.form.get('numeroNequi', 'No proporcionado')
@@ -176,7 +176,7 @@ def checkout():
         msg_admin = Message(subject=f"🌵 Notificación de Venta #{nuevo_pedido.id_pedido}",
                            body=cuerpo_admin,
                            recipients=[current_app.config.get('ADMIN_EMAIL', 'jordan.cely06@gmail.com')])
-        mail.send(msg_admin)
+        enviar_correo_async(msg_admin)
 
         instrucciones_pago = ""
         if metodo_pago == 'NEQUI':
@@ -220,9 +220,9 @@ def checkout():
         msg_usuario = Message(subject=f"🌵 Tu Factura de Compra WYDGARDEN #{nuevo_pedido.id_pedido}",
                              body=cuerpo_usuario,
                              recipients=[current_user.email])
-        mail.send(msg_usuario)
+        enviar_correo_async(msg_usuario)
         
-        print(f"Correos de venta (admin y usuario) enviados correctamente.")
+        print(f"Correos de venta (admin y usuario) en cola de envío.")
     except Exception as e:
         print(f"Error al enviar correos: {e}")
 

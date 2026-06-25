@@ -44,16 +44,12 @@ def validar_email(email):
 
 def enviar_correo_generico(destinatario, asunto, cuerpo):
     try:
-        from app import mail
-        from flask import current_app
-        print(f"DEBUG: Intentando enviar correo a {destinatario}")
-        print(f"DEBUG: Servidor SMTP: {current_app.config.get('MAIL_SERVER')}")
-        print(f"DEBUG: Usuario SMTP: {current_app.config.get('MAIL_USERNAME')}")
+        from app import enviar_correo_async
+        print(f"DEBUG: Intentando enviar correo a {destinatario} (async)")
         msg = Message(subject=asunto,
                       recipients=[destinatario],
                       body=cuerpo)
-        mail.send(msg)
-        print(f"DEBUG: Correo enviado con éxito a {destinatario}")
+        enviar_correo_async(msg)
         return True
     except Exception as e:
         print(f"Error enviando correo a {destinatario}:", e)
