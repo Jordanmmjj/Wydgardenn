@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
+import socket
+socket.setdefaulttimeout(15)
 from config import Config
 from models import db, Producto, Usuario
 from flask_login import LoginManager, current_user
