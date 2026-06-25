@@ -64,6 +64,8 @@ def actualizar_carrito(carrito_id):
         elif nueva_cant <= 0:
             db.session.delete(item)
             db.session.commit()
+        else:
+            flash(f"Solo hay {item.producto.stock} unidades disponibles de {item.producto.nombre}.", "error")
     return redirect(url_for('shop.ver_carrito'))
 
 def verificar_alerta_stock(producto):
